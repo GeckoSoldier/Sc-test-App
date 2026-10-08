@@ -26,6 +26,8 @@ python3 -m http.server 8000
 http://localhost:8000 を開く（同じ Wi-Fi のスマホからは PC の IP アドレス:8000）。
 
 ## Firebase に公開する
+ブラウザだけで行う詳しい手順は [DEPLOY.md](DEPLOY.md) を見てください。
+
 1. Firebase コンソールでプロジェクトを作り、ウェブアプリを追加して表示された設定値を `public/firebase-config.js` に貼る
 2. Authentication で「匿名」ログインを有効にする
 3. Firestore Database を作成する
