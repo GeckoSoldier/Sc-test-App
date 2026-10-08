@@ -1,6 +1,6 @@
 # Firebase へのデプロイ手順（ブラウザだけで行う）
 
-PC のブラウザで行うのがおすすめです。所要時間の目安は 15〜20 分です。
+PC のブラウザで行うのがおすすめです。所要時間の目安は 20 分ほどです。
 Google アカウントは、1〜5 の手順ですべて同じものを使ってください。
 
 ## 1. Firebase プロジェクトを作る
@@ -47,30 +47,45 @@ Google アカウントは、1〜5 の手順ですべて同じものを使って�
 5. 「本番環境モードで開始する」を選んで「作成」
    - アクセスルールは手順 5 のデプロイで自動的に設定されます
 
-## 5. Cloud Shell からデプロイする
-Cloud Shell はブラウザ上で使えるコマンド画面です（無料、インストール不要）。
-Firebase のコマンド（firebase）が最初から入っています。
+## 5. GitHub から自動デプロイする（ブラウザ操作だけ）
+GitHub に変更が入るたびに、GitHub Actions が自動で Firebase にデプロイします。
+最初に一度だけ「鍵」を GitHub に登録します。
 
-1. https://shell.cloud.google.com を開く（初回は利用規約に同意）
-2. 画面下の黒いターミナルに、次の行を 1 行ずつ貼り付けて Enter
+### 5-1. 鍵に権限を付ける（Google Cloud コンソール）
+1. https://console.cloud.google.com/iam-admin/iam?project=sc-test-app-b6200my37 を開く
+2. 一覧から `firebase-adminsdk-` で始まるアカウントの行の **鉛筆アイコン（編集）** を押す
+3. 「別のロールを追加」→ ロールの検索欄に「Firebase 管理者」と入力して選ぶ（英語表示なら「Firebase Admin」）
+4. 「保存」
 
+### 5-2. 鍵をダウンロードする（Firebase コンソール）
+1. https://console.firebase.google.com/project/sc-test-app-b6200my37/settings/serviceaccounts/adminsdk を開く
+2. 「新しい秘密鍵を生成」→「キーを生成」
+3. `sc-test-app-b6200my37-firebase-adminsdk-....json` というファイルがダウンロードされる
+   - **このファイルは秘密情報です。** Claude やチャットには送らず、次の 5-3 で GitHub に登録したら削除してください
+
+### 5-3. 鍵を GitHub に登録する
+1. https://github.com/GeckoSoldier/Sc-test-App/settings/secrets/actions/new を開く
+2. Name に `FIREBASE_SERVICE_ACCOUNT` と入力
+3. Secret に、ダウンロードした JSON ファイルをメモ帳などで開いて **中身を全部** 貼り付ける
+4. 「Add secret」を押す
+
+### 5-4. デプロイを実行する
+1. https://github.com/GeckoSoldier/Sc-test-App/actions/workflows/firebase-deploy.yml を開く
+2. 右側の「Run workflow」→ 緑の「Run workflow」を押す
+3. 1〜2 分待って、一覧の一番上に緑のチェック ✓ が付けば成功
+   - 赤い × の場合は、その行を開いて表示されたエラーを Claude に送ってください
+
+以降は、Claude が GitHub に push するたびに自動でデプロイされます。
+
+### （別の方法）Cloud Shell からデプロイする
+1. https://shell.cloud.google.com を開く
+2. 次を 1 行ずつ実行
    ```sh
    git clone https://github.com/GeckoSoldier/Sc-test-App.git
    cd Sc-test-App
    firebase login --no-localhost
-   ```
-   - `firebase login` で表示される URL を開いて Google アカウントでログインし、
-     表示されたコードをターミナルに貼り付けて Enter
-   - 「Allow Firebase to collect CLI usage...?」と聞かれたら `n` で Enter
-   - `firebase: command not found` と出た場合は、先に `npm install -g firebase-tools` を実行
-
-3. デプロイ先のプロジェクト（`sc-test-app-b6200my37`）はリポジトリの `.firebaserc` に設定済みなので、選ぶ操作は不要です
-
-4. デプロイする
-   ```sh
    firebase deploy
    ```
-   - 最後に `Deploy complete!` と `Hosting URL: https://sc-test-app-b6200my37.web.app` が出れば成功
 
 ## 6. スマホで開く
 1. スマホのブラウザで `https://sc-test-app-b6200my37.web.app` を開く
@@ -80,13 +95,7 @@ Firebase のコマンド（firebase）が最初から入っています。
    - Android（Chrome）：︙メニュー →「ホーム画面に追加」
 
 ## アプリを更新したとき
-Claude が GitHub に変更を push したあと、Cloud Shell で次を実行します。
-
-```sh
-cd ~/Sc-test-App
-git pull
-firebase deploy
-```
+Claude が GitHub に push すると自動でデプロイされます（手順 5 の設定後）。
 
 ## うまくいかないとき
 - 「保存先：Firebase に接続できないため端末内に保存中」と出る

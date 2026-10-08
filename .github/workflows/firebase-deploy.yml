@@ -18,7 +18,9 @@ jobs:
           node-version: 20
 
       - name: サービスアカウントの鍵を用意
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+        env:
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: printf '%s' "$SA_KEY" > "$RUNNER_TEMP/sa.json"
 
       - name: デプロイ
         env:
