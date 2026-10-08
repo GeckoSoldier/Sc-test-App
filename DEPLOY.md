@@ -33,14 +33,18 @@ Google アカウントは、1〜5 の手順ですべて同じものを使って�
 
 ## 3. 匿名ログインを有効にする
 回答記録を「この端末の利用者」ごとに分けて保存するために使います。
-1. 左メニュー「構築」→「Authentication」→「始める」
-2. 「Sign-in method」タブ →「匿名」を選ぶ
-3. 「有効にする」をオンにして「保存」
+1. https://console.firebase.google.com/project/sc-test-app-b6200my37/authentication/providers を開く
+2. 「始める」ボタンが出たら押す
+3. 「ログイン方法（Sign-in method）」タブで「匿名（Anonymous）」を押す
+   - 一覧がなく「新しいプロバイダを追加」ボタンだけの場合は、それを押すと「匿名」が出ます
+4. 「有効にする」をオンにして「保存」
 
 ## 4. Firestore（データベース）を作る
-1. 左メニュー「構築」→「Firestore Database」→「データベースを作成」
-2. ロケーションは **asia-northeast1（東京）** を選ぶ
-3. 「本番環境モードで開始する」を選んで「作成」
+1. https://console.firebase.google.com/project/sc-test-app-b6200my37/firestore を開く
+2. 「データベースを作成」を押す
+3. エディションを聞かれたら **Standard** を選んで「次へ」
+4. データベース ID は **(default)** のまま、ロケーションは **asia-northeast1（Tokyo）** を選んで「次へ」
+5. 「本番環境モードで開始する」を選んで「作成」
    - アクセスルールは手順 5 のデプロイで自動的に設定されます
 
 ## 5. Cloud Shell からデプロイする
