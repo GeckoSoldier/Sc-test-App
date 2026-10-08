@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f4e79">
+  <title>SC午前Ⅱ 演習</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="appbar">
+    <button id="homeBtn" class="appbar-home" aria-label="ホームへ">SC演習</button>
+    <div id="timers" class="timers" hidden>
+      <span class="timer"><small>経過</small><b id="sessionTime">0:00</b></span>
+      <span class="timer"><small>この問題</small><b id="questionTime">0:00</b></span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ホーム -->
+    <section id="home" class="view">
+      <h1 id="examTitle" class="exam-title"></h1>
+      <div class="stats">
+        <div class="stat"><small>正解率</small><b id="statRate">-</b></div>
+        <div class="stat"><small>回答数</small><b id="statCount">0</b></div>
+        <div class="stat"><small>平均時間</small><b id="statAvg">-</b></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" data-mode="all">全問を順に解く</button>
+        <button class="btn" data-mode="shuffle">全問をランダムに解く</button>
+        <button class="btn" data-mode="wrong">間違えた問題だけ解く</button>
+        <button class="btn" data-mode="unanswered">未回答の問題だけ解く</button>
+      </div>
+      <h2 class="section-title">問題ごとの成績</h2>
+      <ul id="questionList" class="qlist"></ul>
+      <p class="sync" id="syncStatus"></p>
+      <button id="resetBtn" class="btn danger small">成績をリセット</button>
+    </section>
+
+    <!-- 問題 -->
+    <section id="quiz" class="view" hidden>
+      <div class="progress"><span id="progressText"></span><div class="bar"><i id="progressBar"></i></div></div>
+      <h2 id="qNo" class="qno"></h2>
+      <div id="qText" class="qtext"></div>
+      <div id="qFigure" class="qfigure"></div>
+      <div id="choices" class="choices"></div>
+      <div id="feedback" class="feedback" hidden></div>
+      <button id="nextBtn" class="btn primary next" hidden>次の問題へ</button>
+      <button id="quitBtn" class="btn ghost small">中断して結果を見る</button>
+    </section>
+
+    <!-- 結果 -->
+    <section id="result" class="view" hidden>
+      <h1>結果</h1>
+      <div class="stats">
+        <div class="stat"><small>正解率</small><b id="resRate"></b></div>
+        <div class="stat"><small>正解数</small><b id="resScore"></b></div>
+        <div class="stat"><small>合計時間</small><b id="resTime"></b></div>
+      </div>
+      <table class="restable">
+        <thead><tr><th>問</th><th>回答</th><th>正解</th><th>判定</th><th>時間</th></tr></thead>
+        <tbody id="resBody"></tbody>
+      </table>
+      <div class="actions">
+        <button class="btn primary" id="retryWrongBtn">間違えた問題を解き直す</button>
+        <button class="btn" id="backHomeBtn">ホームへ戻る</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

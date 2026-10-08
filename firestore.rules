@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 各ユーザー（匿名ログイン）は自分の回答記録だけ読み書きできる
+    match /users/{uid}/attempts/{attemptId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

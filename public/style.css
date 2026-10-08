@@ -1,0 +1,131 @@
+:root {
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dfe7;
+  --primary: #1f4e79;
+  --primary-text: #ffffff;
+  --ok: #1e7d46;
+  --ok-bg: #e3f4ea;
+  --ng: #b3261e;
+  --ng-bg: #fbe6e4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161c;
+    --card: #1b2129;
+    --text: #e6eaf0;
+    --muted: #9aa6b4;
+    --line: #2e3742;
+    --primary: #5b9bd5;
+    --primary-text: #0d1117;
+    --ok: #6fcf97;
+    --ok-bg: #173323;
+    --ng: #f28b82;
+    --ng-bg: #3a1c1a;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+
+.appbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+  background: var(--primary); color: var(--primary-text);
+}
+.appbar-home { background: none; border: 0; color: inherit; font-weight: 700; font-size: 17px; padding: 4px 0; }
+.timers { display: flex; gap: 14px; }
+.timer { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.timer small { font-size: 11px; opacity: .85; }
+.timer b { font-variant-numeric: tabular-nums; font-size: 17px; }
+
+main { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(32px + env(safe-area-inset-bottom)); }
+h1 { font-size: 20px; margin: 4px 0 12px; }
+.exam-title { font-size: 18px; }
+.section-title { font-size: 16px; margin: 24px 0 8px; color: var(--muted); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; text-align: center; }
+.stat small { display: block; color: var(--muted); font-size: 12px; }
+.stat b { font-size: 20px; font-variant-numeric: tabular-nums; }
+
+.actions { display: grid; gap: 10px; margin: 8px 0; }
+.btn {
+  display: block; width: 100%;
+  min-height: 48px; padding: 10px 14px;
+  border-radius: 12px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text);
+  font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.btn.primary { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.danger { color: var(--ng); }
+.btn.small { min-height: 40px; font-size: 14px; font-weight: 500; margin-top: 16px; }
+.btn:disabled { opacity: .5; }
+
+.qlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.qlist li button {
+  width: 100%; aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text); font-size: 13px; line-height: 1.2; padding: 2px;
+}
+.qlist li button .mark { display: block; font-size: 16px; font-weight: 700; }
+.qlist li button.ok { background: var(--ok-bg); border-color: var(--ok); }
+.qlist li button.ok .mark { color: var(--ok); }
+.qlist li button.ng { background: var(--ng-bg); border-color: var(--ng); }
+.qlist li button.ng .mark { color: var(--ng); }
+.sync { color: var(--muted); font-size: 12px; margin: 16px 0 0; }
+
+.progress { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.progress .bar { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress .bar i { display: block; height: 100%; background: var(--primary); width: 0; transition: width .2s; }
+.qno { font-size: 18px; margin: 12px 0 4px; }
+.qtext { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.qfigure:not(:empty) { margin-top: 12px; overflow-x: auto; }
+.fig-stack { margin: 0 auto; border-collapse: collapse; min-width: 200px; }
+.fig-stack td { border: 1.5px solid var(--text); padding: 6px 20px; text-align: center; background: var(--card); }
+.fig-caption { font-size: 14px; margin-bottom: 4px; }
+.fig-table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--card); }
+.fig-table th, .fig-table td { border: 1px solid var(--text); padding: 6px 8px; text-align: left; }
+.fig-table th { text-align: center; }
+
+.choices { display: grid; gap: 10px; margin-top: 16px; }
+.choice {
+  display: flex; gap: 12px; align-items: flex-start; text-align: left;
+  width: 100%; min-height: 56px; padding: 12px 14px;
+  border-radius: 12px; border: 2px solid var(--line);
+  background: var(--card); color: var(--text); font-size: 15px; line-height: 1.6; cursor: pointer;
+}
+.choice .label {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--bg); font-weight: 700;
+}
+.choice:active:not(:disabled) { border-color: var(--primary); }
+.choice:disabled { cursor: default; }
+.choice.correct { border-color: var(--ok); background: var(--ok-bg); }
+.choice.correct .label { background: var(--ok); color: #fff; }
+.choice.wrong { border-color: var(--ng); background: var(--ng-bg); }
+.choice.wrong .label { background: var(--ng); color: #fff; }
+.choice.dim { opacity: .55; }
+
+.feedback { margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-weight: 600; }
+.feedback.ok { background: var(--ok-bg); color: var(--ok); }
+.feedback.ng { background: var(--ng-bg); color: var(--ng); }
+.feedback small { display: block; font-weight: 400; color: var(--text); }
+.next { margin-top: 12px; }
+
+.restable { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; margin: 8px 0 16px; font-size: 14px; }
+.restable th, .restable td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: center; font-variant-numeric: tabular-nums; }
+.restable th { color: var(--muted); font-weight: 600; }
+.restable .ok { color: var(--ok); font-weight: 700; }
+.restable .ng { color: var(--ng); font-weight: 700; }
