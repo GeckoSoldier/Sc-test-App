@@ -38,3 +38,10 @@ http://localhost:8000 を開く（同じ Wi-Fi のスマホからは PC の IP �
 
 ## 問題を追加する
 `public/data/` に同じ形の JSON を追加します。各問題は `no`, `text`, `choices`（ア〜エ）, `answer`、図表がある場合は `figure`（HTML）を持ちます。
+
+## セキュリティ
+- Firestore は本人（匿名ログインのユーザー）の記録だけ読み書きでき、保存できる項目・型・値の範囲もルールで制限（`firestore.rules`）。記録の書き換えは不可
+- 端末内や Firestore から読み込んだ記録も、アプリ側で形をチェックしてから使う
+- 画面への表示は自前の問題データ以外 `textContent` で行い、HTML として解釈させない
+- Content-Security-Policy などのセキュリティヘッダーを `firebase.json` で付与（読み込めるスクリプトは自サイトと Firebase SDK のみ）
+- デプロイは Hosting 公開権限だけの専用アカウントで行い、手動実行のみ（`.github/workflows/firebase-deploy.yml`）

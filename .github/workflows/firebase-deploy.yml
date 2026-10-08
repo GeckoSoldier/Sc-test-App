@@ -1,28 +1,33 @@
-# main に push されたとき（または Actions 画面の「Run workflow」ボタン）に
-# Firebase Hosting と Firestore ルールをデプロイする。
-name: Firebase にデプロイ
+# Firebase Hosting へのデプロイ。
+# 自動では動かず、森さんが GitHub の Actions 画面で「Run workflow」を押したときだけ実行する
+# （GitHub に入った変更を確認してから公開できるようにするため）。
+# 使う鍵は Hosting の公開だけができる専用アカウントのもので、Firestore のデータや設定には触れられない。
+name: Firebase Hosting にデプロイ
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: サービスアカウントの鍵を用意
-        env:
-          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: printf '%s' "$SA_KEY" > "$RUNNER_TEMP/sa.json"
-
       - name: デプロイ
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
-        run: npx --yes firebase-tools@13 deploy --only hosting,firestore:rules --project sc-test-app-b6200my37 --non-interactive
+          SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          umask 077
+          printf '%s' "$SA_KEY" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx --yes firebase-tools@13 deploy --only hosting --project sc-test-app-b6200my37 --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"

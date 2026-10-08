@@ -18,6 +18,11 @@ function fmt(ms) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
+function randomId(len) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from(crypto.getRandomValues(new Uint8Array(len)), (b) => chars[b % chars.length]).join("");
+}
+
 function rate(correct, total) {
   return total ? `${Math.round((correct / total) * 1000) / 10}%` : "-";
 }
@@ -57,7 +62,10 @@ function renderHome() {
     const li = document.createElement("li");
     const btn = document.createElement("button");
     btn.className = a ? (a.correct ? "ok" : "ng") : "";
-    btn.innerHTML = `<span class="mark">${a ? (a.correct ? "○" : "×") : "－"}</span>問${q.no}`;
+    const mark = document.createElement("span");
+    mark.className = "mark";
+    mark.textContent = a ? (a.correct ? "○" : "×") : "－";
+    btn.append(mark, `問${q.no}`);
     btn.setAttribute("aria-label", `問${q.no}を解く`);
     btn.addEventListener("click", () => startSession([q.no]));
     li.appendChild(btn);
@@ -117,7 +125,7 @@ function renderQuestion() {
   $("progressText").textContent = `${session.index + 1} / ${total}`;
   $("progressBar").style.width = `${(session.index / total) * 100}%`;
   $("qNo").textContent = `問${q.no}`;
-  $("qText").innerHTML = q.text; // 問題文は自前データ（下線などの装飾のみ）
+  $("qText").innerHTML = q.text; // 問題文・図表は同じサイトに置いた自前データのみ（下線・表の装飾に HTML を使う）
   $("qFigure").innerHTML = q.figure || "";
   $("feedback").hidden = true;
   $("nextBtn").hidden = true;
@@ -149,13 +157,13 @@ function answer(q, chosen) {
   const correct = chosen === q.answer;
   const timeMs = now - session.questionStartedAt;
   const attempt = {
-    id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
+    id: `${now}-${randomId(6)}`,
     examId: exam.id,
     questionNo: q.no,
     chosen,
     answer: q.answer,
     correct,
-    timeMs,
+    timeMs: Math.round(timeMs),
     answeredAt: now,
   };
   session.results.push(attempt);
@@ -170,7 +178,9 @@ function answer(q, chosen) {
   }
   const fb = $("feedback");
   fb.className = `feedback ${correct ? "ok" : "ng"}`;
-  fb.innerHTML = `${correct ? "○ 正解" : `× 不正解（正解は ${q.answer}）`}<small>解答時間 ${fmt(timeMs)}</small>`;
+  const detail = document.createElement("small");
+  detail.textContent = `解答時間 ${fmt(timeMs)}`;
+  fb.replaceChildren(correct ? "○ 正解" : `× 不正解（正解は ${q.answer}）`, detail);
   fb.hidden = false;
 
   const last = session.index === session.order.length - 1;
@@ -199,13 +209,20 @@ function finish() {
   $("resRate").textContent = rate(correct, res.length);
   $("resScore").textContent = `${correct} / ${res.length}`;
   $("resTime").textContent = fmt(Date.now() - session.startedAt);
-  $("resBody").innerHTML = res
-    .map(
-      (r) =>
-        `<tr><td>問${r.questionNo}</td><td>${r.chosen}</td><td>${r.answer}</td>` +
-        `<td class="${r.correct ? "ok" : "ng"}">${r.correct ? "○" : "×"}</td><td>${fmt(r.timeMs)}</td></tr>`
-    )
-    .join("");
+  const body = $("resBody");
+  body.replaceChildren(
+    ...res.map((r) => {
+      const tr = document.createElement("tr");
+      const cells = [`問${r.questionNo}`, r.chosen, r.answer, r.correct ? "○" : "×", fmt(r.timeMs)];
+      cells.forEach((text, i) => {
+        const td = document.createElement("td");
+        td.textContent = text;
+        if (i === 3) td.className = r.correct ? "ok" : "ng";
+        tr.appendChild(td);
+      });
+      return tr;
+    })
+  );
   $("retryWrongBtn").hidden = correct === res.length;
   session.finished = true;
   show("result");

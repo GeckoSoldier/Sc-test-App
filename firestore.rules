@@ -1,9 +1,40 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 各ユーザー（匿名ログイン）は自分の回答記録だけ読み書きできる
+    // 回答記録：本人（匿名ログインのユーザー）だけが読み書きできる。
+    // 書き込める項目・型・値の範囲を限定し、想定外のデータを保存させない。
     match /users/{uid}/attempts/{attemptId} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && attemptId.matches('^[0-9]{13}-[a-z0-9]{6}$')
+        && isValidAttempt(request.resource.data, attemptId);
+      // 記録は後から書き換えない
+      allow update: if false;
+    }
+
+    // それ以外のパスはすべて拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isChoice(v) {
+      return v is string && v in ['ア', 'イ', 'ウ', 'エ'];
+    }
+
+    function isValidAttempt(d, attemptId) {
+      return d.keys().hasOnly(['id', 'examId', 'questionNo', 'chosen', 'answer', 'correct', 'timeMs', 'answeredAt'])
+        && d.keys().hasAll(['id', 'examId', 'questionNo', 'chosen', 'answer', 'correct', 'timeMs', 'answeredAt'])
+        && d.id == attemptId
+        && d.examId is string && d.examId.matches('^[a-z0-9_]{1,40}$')
+        && d.questionNo is int && d.questionNo >= 1 && d.questionNo <= 200
+        && isChoice(d.chosen) && isChoice(d.answer)
+        && d.correct is bool && d.correct == (d.chosen == d.answer)
+        && d.timeMs is int && d.timeMs >= 0 && d.timeMs <= 86400000
+        && d.answeredAt is int && d.answeredAt > 0;
     }
   }
 }
