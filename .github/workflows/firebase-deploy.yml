@@ -1,0 +1,26 @@
+# main に push されたとき（または Actions 画面の「Run workflow」ボタン）に
+# Firebase Hosting と Firestore ルールをデプロイする。
+name: Firebase にデプロイ
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: サービスアカウントの鍵を用意
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+
+      - name: デプロイ
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx --yes firebase-tools@13 deploy --only hosting,firestore:rules --project sc-test-app-b6200my37 --non-interactive
