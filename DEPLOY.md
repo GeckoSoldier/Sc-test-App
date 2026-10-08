@@ -60,21 +60,16 @@ Firebase のコマンド（firebase）が最初から入っています。
    - 「Allow Firebase to collect CLI usage...?」と聞かれたら `n` で Enter
    - `firebase: command not found` と出た場合は、先に `npm install -g firebase-tools` を実行
 
-3. デプロイ先のプロジェクトを選ぶ
-   ```sh
-   firebase use --add
-   ```
-   - 矢印キーで手順 1 のプロジェクトを選んで Enter
-   - 「What alias do you want to use?」には `default` と入力して Enter
+3. デプロイ先のプロジェクト（`sc-test-app-b6200my37`）はリポジトリの `.firebaserc` に設定済みなので、選ぶ操作は不要です
 
 4. デプロイする
    ```sh
    firebase deploy
    ```
-   - 最後に `Deploy complete!` と `Hosting URL: https://<プロジェクトID>.web.app` が出れば成功
+   - 最後に `Deploy complete!` と `Hosting URL: https://sc-test-app-b6200my37.web.app` が出れば成功
 
 ## 6. スマホで開く
-1. スマホのブラウザで `https://<プロジェクトID>.web.app` を開く
+1. スマホのブラウザで `https://sc-test-app-b6200my37.web.app` を開く
 2. ホームの一番下に「保存先：Firebase に同期済み」と出ていれば、記録が Firestore に保存されています
 3. ホーム画面に追加しておくと、アプリのように開けます
    - iPhone（Safari）：共有ボタン →「ホーム画面に追加」
