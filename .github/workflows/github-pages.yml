@@ -1,0 +1,33 @@
+# public/ を GitHub Pages に公開する。
+# 自動では動かず、Actions 画面で「Run workflow」を押したときだけ実行する。
+# 鍵や Secrets は使わない（GitHub が発行する一時的な権限だけで公開する）。
+name: GitHub Pages に公開
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4

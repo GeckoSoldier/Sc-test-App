@@ -44,4 +44,4 @@ http://localhost:8000 を開く（同じ Wi-Fi のスマホからは PC の IP �
 - 端末内や Firestore から読み込んだ記録も、アプリ側で形をチェックしてから使う
 - 画面への表示は自前の問題データ以外 `textContent` で行い、HTML として解釈させない
 - Content-Security-Policy などのセキュリティヘッダーを `firebase.json` で付与（読み込めるスクリプトは自サイトと Firebase SDK のみ）
-- デプロイは Hosting 公開権限だけの専用アカウントで行い、手動実行のみ（`.github/workflows/firebase-deploy.yml`）
+- 公開は GitHub Pages（鍵不要、`.github/workflows/github-pages.yml`）または Hosting 公開権限だけの専用アカウント（`firebase-deploy.yml`）で行い、どちらも手動実行のみ

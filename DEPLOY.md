@@ -1,4 +1,4 @@
-# Firebase へのデプロイ手順（ブラウザだけで行う）
+# 公開（デプロイ）手順（ブラウザだけで行う）
 
 PC のブラウザで行うのがおすすめです。所要時間の目安は 20 分ほどです。
 Google アカウントは、すべての手順で同じものを使ってください。
@@ -95,7 +95,31 @@ service cloud.firestore {
 }
 ```
 
-## 5. GitHub からデプロイする（ブラウザ操作だけ）
+## 5. GitHub Pages で公開する（おすすめ・鍵なし）
+GitHub の機能だけでアプリを公開します。鍵や Google Cloud の設定は不要です。
+公開されるのは、森さんが GitHub の画面でボタンを押したときだけです。
+
+### 5-1. GitHub Pages を有効にする（最初の 1 回だけ）
+1. https://github.com/GeckoSoldier/Sc-test-App/settings/pages を開く
+2. 「Build and deployment」の「Source」で **GitHub Actions** を選ぶ（選ぶだけで保存されます）
+
+### 5-2. Firebase にこのサイトを登録する（最初の 1 回だけ）
+1. https://console.firebase.google.com/project/sc-test-app-b6200my37/authentication/settings を開く
+2. 「承認済みドメイン」→「ドメインを追加」→ `geckosoldier.github.io` を入力して「追加」
+
+### 5-3. 公開する
+1. https://github.com/GeckoSoldier/Sc-test-App/actions/workflows/github-pages.yml を開く
+2. 右側の「Run workflow」→ 緑の「Run workflow」を押す
+3. 1〜2 分待って、一覧の一番上に緑のチェック ✓ が付けば成功
+4. スマホで **https://geckosoldier.github.io/Sc-test-App/** を開く
+
+アプリを更新したときは、5-3 のボタンをもう一度押します。
+
+---
+
+以下の「Firebase Hosting で公開する」は、`https://sc-test-app-b6200my37.web.app` で公開したい場合の方法です。GitHub Pages を使うなら不要です。
+
+## （別の方法）Firebase Hosting で公開する
 GitHub の Actions 画面のボタンを押したときだけ、Firebase Hosting（アプリの公開）にデプロイします。
 
 **安全のための設計**
@@ -103,43 +127,43 @@ GitHub の Actions 画面のボタンを押したときだけ、Firebase Hosting
 - デプロイは自動では動きません。GitHub に入った変更を確認してから、森さんがボタンを押したときだけ公開されます。Claude が GitHub に push しても、それだけでは公開されません。
 - 鍵は GitHub の Secrets に暗号化して保存され、画面やログには表示されません。
 
-### 5-1. デプロイ専用のアカウントを作る（Google Cloud コンソール）
+### H-1. デプロイ専用のアカウントを作る（Google Cloud コンソール）
 1. https://console.cloud.google.com/iam-admin/serviceaccounts/create?project=sc-test-app-b6200my37 を開く
 2. 「サービス アカウント名」に `github-hosting-deploy` と入力して「作成して続行」
 3. 「ロールを選択」で検索欄に「Firebase Hosting 管理者」と入力して選ぶ（英語表示なら「Firebase Hosting Admin」）
    - **これ以外のロールは追加しないでください**
 4. 「続行」→「完了」
 
-### 5-2. 鍵をダウンロードする
+### H-2. 鍵をダウンロードする
 1. 一覧に出た `github-hosting-deploy@...` を押す
 2. 上の「キー」タブ →「鍵を追加」→「新しい鍵を作成」→「JSON」→「作成」
 3. JSON ファイルがダウンロードされる
-   - **このファイルは秘密情報です。** Claude やチャットには送らず、次の 5-3 で GitHub に登録したら削除してください
+   - **このファイルは秘密情報です。** Claude やチャットには送らず、次の H-3 で GitHub に登録したら削除してください
 
-### 5-3. 鍵を GitHub に登録する
+### H-3. 鍵を GitHub に登録する
 1. https://github.com/GeckoSoldier/Sc-test-App/settings/secrets/actions/new を開く
 2. Name に `FIREBASE_SERVICE_ACCOUNT` と入力
 3. Secret に、ダウンロードした JSON ファイルをメモ帳などで開いて **中身を全部** 貼り付ける
 4. 「Add secret」を押し、ダウンロードした JSON ファイルを削除する
 
-### 5-4. デプロイを実行する
+### H-4. デプロイを実行する
 1. https://github.com/GeckoSoldier/Sc-test-App/actions/workflows/firebase-deploy.yml を開く
 2. 右側の「Run workflow」→ 緑の「Run workflow」を押す
 3. 1〜2 分待って、一覧の一番上に緑のチェック ✓ が付けば成功
    - 赤い × の場合は、その行を開いて表示されたエラーを Claude に送ってください
 
 ### 鍵が漏れたかもしれないとき
-5-2 の「キー」タブで、その鍵を削除すればすぐに使えなくなります。新しい鍵を作って 5-3 をやり直してください。
+H-2 の「キー」タブで、その鍵を削除すればすぐに使えなくなります。新しい鍵を作って H-3 をやり直してください。
 
 ## 6. スマホで開く
-1. スマホのブラウザで `https://sc-test-app-b6200my37.web.app` を開く
+1. スマホのブラウザで公開した URL を開く（GitHub Pages なら `https://geckosoldier.github.io/Sc-test-App/`）
 2. ホームの一番下に「保存先：Firebase に同期済み」と出ていれば、記録が Firestore に保存されています
 3. ホーム画面に追加しておくと、アプリのように開けます
    - iPhone（Safari）：共有ボタン →「ホーム画面に追加」
    - Android（Chrome）：︙メニュー →「ホーム画面に追加」
 
 ## アプリを更新したとき
-Claude が GitHub に push したら、変更内容を確認してから手順 5-4 のボタンでデプロイします。
+Claude が GitHub に push したら、変更内容を確認してから手順 5-3 のボタンで公開します。
 `firestore.rules` が変わったときは、手順 4-1 でルールを貼り直してください。
 
 ## さらに安全にする（任意）
@@ -149,8 +173,9 @@ Claude が GitHub に push したら、変更内容を確認してから手順 5
 3. 「アプリケーションの制限」で「ウェブサイト」を選び、次の 2 つを追加して「保存」
    - `https://sc-test-app-b6200my37.web.app/*`
    - `https://sc-test-app-b6200my37.firebaseapp.com/*`
+   - `https://geckosoldier.github.io/*`
 
 ## うまくいかないとき
 - 「保存先：Firebase に接続できないため端末内に保存中」と出る
-  → 手順 3（匿名ログイン）、手順 4 と 4-1（Firestore とルール）が済んでいるか確認する
+  → 手順 3（匿名ログイン）、手順 4 と 4-1（Firestore とルール）、5-2（承認済みドメイン）が済んでいるか確認する
 - 記録はスマホとPCで別々になります（端末ごとに匿名ユーザーが作られるため）
