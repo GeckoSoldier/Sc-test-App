@@ -49,8 +49,9 @@ function saveLocal(attempts) {
 
 let attempts = loadLocal();
 
-export function getAttempts(examId) {
-  return attempts.filter((a) => a.examId === examId);
+// examIds を省略すると全試験の記録を返す
+export function getAttempts(examIds) {
+  return examIds ? attempts.filter((a) => examIds.includes(a.examId)) : attempts.slice();
 }
 
 export function getStatus() {
@@ -107,9 +108,9 @@ export async function addAttempt(input) {
   }
 }
 
-export async function clearAttempts(examId) {
-  const removed = attempts.filter((a) => a.examId === examId);
-  attempts = attempts.filter((a) => a.examId !== examId);
+export async function clearAttempts(examIds) {
+  const removed = attempts.filter((a) => examIds.includes(a.examId));
+  attempts = attempts.filter((a) => !examIds.includes(a.examId));
   saveLocal(attempts);
   if (!remote) return;
   const { db, uid, fs } = remote;

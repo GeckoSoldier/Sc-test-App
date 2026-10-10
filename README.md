@@ -8,6 +8,7 @@
 - その場で正誤を表示し、回答記録を保存
 - 正解率・回答数・平均解答時間、問題ごとの最新の正誤（○×）を表示
 - 演習開始からの経過時間と、問題ごとの解答時間を計測
+- 解く回を選択（令和7年度秋期／令和7年度春期／令和6年度秋期）、または3回分75問をまとめて演習
 - 全問（順番／ランダム）、間違えた問題だけ、未回答だけ、を選んで演習
 
 ## ファイル構成
@@ -16,6 +17,8 @@
 - `public/storage.js` 回答記録の保存（端末内 localStorage ＋ Firestore）
 - `public/firebase-config.js` Firebase の設定値（未設定なら端末内のみに保存）
 - `public/data/r07a_sc_am2.json` 問題データ（令和7年度秋期 午前Ⅱ 25問）
+- `public/data/r07h_sc_am2.json` 問題データ（令和7年度春期 午前Ⅱ 25問）
+- `public/data/r06a_sc_am2.json` 問題データ（令和6年度秋期 午前Ⅱ 25問）
 - `firebase.json` / `firestore.rules` Firebase Hosting と Firestore の設定
 
 ## 手元で試す
@@ -38,6 +41,7 @@ http://localhost:8000 を開く（同じ Wi-Fi のスマホからは PC の IP �
 
 ## 問題を追加する
 `public/data/` に同じ形の JSON を追加します。各問題は `no`, `text`, `choices`（ア〜エ）, `answer`、図表がある場合は `figure`（HTML）を持ちます。
+ファイル名（拡張子なし）を試験 ID として `public/app.js` の `EXAMS` に1行追加すると、回の選択と「まとめて解く」に加わります。
 
 ## セキュリティ
 - Firestore は本人（匿名ログインのユーザー）の記録だけ読み書きでき、保存できる項目・型・値の範囲もルールで制限（`firestore.rules`）。記録の書き換えは不可

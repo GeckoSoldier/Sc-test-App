@@ -23,6 +23,8 @@
   <main id="app">
     <!-- ホーム -->
     <section id="home" class="view">
+      <h2 class="section-title first">解く回を選ぶ</h2>
+      <div id="examPicker" class="picker" role="group" aria-label="試験の回"></div>
       <h1 id="examTitle" class="exam-title"></h1>
       <div class="stats">
         <div class="stat"><small>正解率</small><b id="statRate">-</b></div>
@@ -36,7 +38,7 @@
         <button class="btn" data-mode="unanswered">未回答の問題だけ解く</button>
       </div>
       <h2 class="section-title">問題ごとの成績</h2>
-      <ul id="questionList" class="qlist"></ul>
+      <div id="questionLists"></div>
       <p class="sync" id="syncStatus"></p>
       <button id="resetBtn" class="btn danger small">成績をリセット</button>
     </section>
@@ -44,6 +46,7 @@
     <!-- 問題 -->
     <section id="quiz" class="view" hidden>
       <div class="progress"><span id="progressText"></span><div class="bar"><i id="progressBar"></i></div></div>
+      <p id="qExam" class="qexam"></p>
       <h2 id="qNo" class="qno"></h2>
       <div id="qText" class="qtext"></div>
       <div id="qFigure" class="qfigure"></div>
@@ -62,7 +65,7 @@
         <div class="stat"><small>合計時間</small><b id="resTime"></b></div>
       </div>
       <table class="restable">
-        <thead><tr><th>問</th><th>回答</th><th>正解</th><th>判定</th><th>時間</th></tr></thead>
+        <thead><tr><th>回</th><th>問</th><th>回答</th><th>正解</th><th>判定</th><th>時間</th></tr></thead>
         <tbody id="resBody"></tbody>
       </table>
       <div class="actions">
