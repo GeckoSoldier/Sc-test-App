@@ -1,4 +1,6 @@
 import { getAttempts, addAttempt, clearAttempts, initRemote, getStatus } from "./storage.js";
+import { $, fmt, randomId, rate, show, load, save } from "./util.js";
+import { initPm, renderPmHome, pmActive, quitPm } from "./pm.js";
 
 // 収録している試験（新しい順）。問題データは data/ に置いた自前の JSON のみ
 const EXAMS = [
@@ -10,36 +12,13 @@ const ALL = "all";
 const SCOPE_KEY = "sc-quiz-scope-v1";
 const LABELS = ["ア", "イ", "ウ", "エ"];
 
-const $ = (id) => document.getElementById(id);
-const views = ["home", "quiz", "result"];
+const MODE_KEY = "sc-quiz-mode-v1";
 
 const exams = new Map(); // id -> 試験データ
 let scope = ALL; // "all" または試験 id
+let mode = "am"; // "am"（午前Ⅱ）または "pm"（午後）
 let session = null; // { order: [{ examId, no }], index, startedAt, questionStartedAt, results: [] }
 let tickTimer = null;
-
-function fmt(ms) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = String(s % 60).padStart(2, "0");
-  return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
-}
-
-function randomId(len) {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  return Array.from(crypto.getRandomValues(new Uint8Array(len)), (b) => chars[b % chars.length]).join("");
-}
-
-function rate(correct, total) {
-  return total ? `${Math.round((correct / total) * 1000) / 10}%` : "-";
-}
-
-function show(name) {
-  views.forEach((v) => ($(v).hidden = v !== name));
-  $("timers").hidden = name !== "quiz";
-  window.scrollTo(0, 0);
-}
 
 function examInfo(id) {
   return EXAMS.find((e) => e.id === id);
@@ -54,20 +33,29 @@ function question(ref) {
 }
 
 function loadScope() {
-  try {
-    const v = localStorage.getItem(SCOPE_KEY);
-    if (v === ALL || examInfo(v)) scope = v;
-  } catch {
-    // 保存できない環境では既定（3回まとめて）のまま
-  }
+  const v = load(SCOPE_KEY);
+  if (v === ALL || examInfo(v)) scope = v;
+  if (load(MODE_KEY) === "pm") mode = "pm";
 }
 
 function saveScope() {
-  try {
-    localStorage.setItem(SCOPE_KEY, scope);
-  } catch {
-    // 無視
+  save(SCOPE_KEY, scope);
+}
+
+// ---------- 午前Ⅱ／午後の切り替え ----------
+function setMode(next) {
+  mode = next;
+  save(MODE_KEY, mode);
+  renderHome();
+}
+
+function renderMode() {
+  for (const b of document.querySelectorAll("[data-exam-mode]")) {
+    b.setAttribute("aria-pressed", String(b.dataset.examMode === mode));
   }
+  $("amHome").hidden = mode !== "am";
+  $("pmHome").hidden = mode !== "pm";
+  document.title = mode === "am" ? "SC午前Ⅱ 演習" : "SC午後 演習";
 }
 
 // ---------- ホーム ----------
@@ -102,6 +90,12 @@ function summary(ids) {
 }
 
 function renderHome() {
+  renderMode();
+  $("syncStatus").textContent = `保存先：${getStatus()}`;
+  if (mode === "pm") {
+    renderPmHome();
+    return;
+  }
   const total = EXAMS.reduce((n, e) => n + exams.get(e.id).questions.length, 0);
   $("examPicker").replaceChildren(
     pickerButton(ALL, `3回分まとめて（${total}問）`, summary(EXAMS.map((e) => e.id)).text),
@@ -148,7 +142,6 @@ function renderHome() {
   });
   $("questionLists").replaceChildren(...groups);
   $("resetBtn").textContent = scope === ALL ? "3回分の成績をすべてリセット" : `${examInfo(scope).label}の成績をリセット`;
-  $("syncStatus").textContent = `保存先：${getStatus()}`;
 }
 
 function ordersFor(mode) {
@@ -182,6 +175,8 @@ function startSession(order) {
     return;
   }
   session = { order, index: 0, startedAt: Date.now(), results: [] };
+  $("timerLabel1").textContent = "経過";
+  $("timerLabel2").textContent = "この問題";
   show("quiz");
   renderQuestion();
   clearInterval(tickTimer);
@@ -330,12 +325,19 @@ async function main() {
     })
   );
   loaded.forEach((exam, i) => exams.set(EXAMS[i].id, exam));
+  document.querySelectorAll("[data-exam-mode]").forEach((b) =>
+    b.addEventListener("click", () => setMode(b.dataset.examMode))
+  );
+  await initPm(goHome);
   document.querySelectorAll("[data-mode]").forEach((b) =>
     b.addEventListener("click", () => startSession(ordersFor(b.dataset.mode)))
   );
   $("nextBtn").addEventListener("click", next);
   $("quitBtn").addEventListener("click", () => (session.results.length ? finish() : goHome()));
-  $("homeBtn").addEventListener("click", goHome);
+  $("homeBtn").addEventListener("click", () => {
+    if (pmActive()) quitPm();
+    else goHome();
+  });
   $("backHomeBtn").addEventListener("click", goHome);
   $("retryWrongBtn").addEventListener("click", () =>
     startSession(session.results.filter((r) => !r.correct).map((r) => ({ examId: r.examId, no: r.questionNo })))
