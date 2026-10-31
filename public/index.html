@@ -7,7 +7,7 @@
   <!-- GitHub Pages ではヘッダーを設定できないため、同じ CSP を meta でも指定（frame-ancestors は meta では無効） -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self'; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com; frame-src https://sc-test-app-b6200my37.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>SC午前Ⅱ 演習</title>
+  <title>SC演習</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,14 +15,19 @@
   <header class="appbar">
     <button id="homeBtn" class="appbar-home" aria-label="ホームへ">SC演習</button>
     <div id="timers" class="timers" hidden>
-      <span class="timer"><small>経過</small><b id="sessionTime">0:00</b></span>
-      <span class="timer"><small>この問題</small><b id="questionTime">0:00</b></span>
+      <span class="timer"><small id="timerLabel1">経過</small><b id="sessionTime">0:00</b></span>
+      <span class="timer"><small id="timerLabel2">この問題</small><b id="questionTime">0:00</b></span>
     </div>
   </header>
 
   <main id="app">
     <!-- ホーム -->
     <section id="home" class="view">
+      <div class="modeswitch" role="group" aria-label="試験区分">
+        <button type="button" data-exam-mode="am" aria-pressed="true">午前Ⅱ</button>
+        <button type="button" data-exam-mode="pm" aria-pressed="false">午後</button>
+      </div>
+      <div id="amHome">
       <h2 class="section-title first">解く回を選ぶ</h2>
       <div id="examPicker" class="picker" role="group" aria-label="試験の回"></div>
       <h1 id="examTitle" class="exam-title"></h1>
@@ -39,8 +44,25 @@
       </div>
       <h2 class="section-title">問題ごとの成績</h2>
       <div id="questionLists"></div>
-      <p class="sync" id="syncStatus"></p>
       <button id="resetBtn" class="btn danger small">成績をリセット</button>
+      </div>
+
+      <!-- 午後 -->
+      <div id="pmHome" hidden>
+        <h2 class="section-title first">解く回を選ぶ</h2>
+        <div id="pmPicker" class="picker" role="group" aria-label="試験の回"></div>
+        <h1 id="pmExamTitle" class="exam-title"></h1>
+        <div id="pmStats" class="stats">
+          <div class="stat"><small>得点率</small><b id="pmStatRate">-</b></div>
+          <div class="stat"><small>解いた問題</small><b id="pmStatCount">0</b></div>
+          <div class="stat"><small>平均時間</small><b id="pmStatAvg">-</b></div>
+        </div>
+        <p class="pm-note">本番は4問から2問を選び150分（1問の目安75分）。設問ごとに答えを書き、解答例と見比べて ○（正解）△（部分点）×（不正解）で自己採点します。</p>
+        <h2 class="section-title">問題を選ぶ</h2>
+        <div id="pmQuestionList" class="pmqlist"></div>
+        <button id="pmResetBtn" class="btn danger small">成績をリセット</button>
+      </div>
+      <p class="sync" id="syncStatus"></p>
     </section>
 
     <!-- 問題 -->
@@ -71,6 +93,54 @@
       <div class="actions">
         <button class="btn primary" id="retryWrongBtn">間違えた問題を解き直す</button>
         <button class="btn" id="backHomeBtn">ホームへ戻る</button>
+      </div>
+    </section>
+
+    <!-- 午後：問題 -->
+    <section id="pmQuestion" class="view" hidden>
+      <p id="pmExam" class="qexam"></p>
+      <h2 id="pmNo" class="qno"></h2>
+      <div class="pm-tabs" role="tablist">
+        <button type="button" role="tab" data-pm-tab="body" aria-selected="true">問題文</button>
+        <button type="button" role="tab" data-pm-tab="items" aria-selected="false">設問・解答</button>
+      </div>
+      <div id="pmBodyPane" role="tabpanel">
+        <div id="pmBody" class="qtext pm-body"></div>
+      </div>
+      <div id="pmItemsPane" role="tabpanel" hidden>
+        <div id="pmItems"></div>
+        <div id="pmCommentary" class="pm-commentary" hidden>
+          <div id="pmAim">
+            <small>出題趣旨</small>
+            <p id="pmAimText"></p>
+          </div>
+          <div id="pmCommentaryBox">
+            <small>採点講評</small>
+            <p id="pmCommentaryText"></p>
+          </div>
+        </div>
+        <button id="pmRevealBtn" class="btn primary next">解答例を見て採点する</button>
+        <button id="pmSaveBtn" class="btn primary next" hidden>採点を記録する</button>
+      </div>
+      <button id="pmQuitBtn" class="btn ghost small">中断してホームへ</button>
+    </section>
+
+    <!-- 午後：結果 -->
+    <section id="pmResult" class="view" hidden>
+      <h1>結果</h1>
+      <div class="stats">
+        <div class="stat"><small>得点率</small><b id="pmResRate"></b></div>
+        <div class="stat"><small>得点</small><b id="pmResScore"></b></div>
+        <div class="stat"><small>解答時間</small><b id="pmResTime"></b></div>
+      </div>
+      <table class="restable">
+        <thead><tr><th>設問</th><th>あなたの答え</th><th>採点</th></tr></thead>
+        <tbody id="pmResBody"></tbody>
+      </table>
+      <p class="pm-note">○は1点、△は0.5点、×は0点で数えています（本番の配点とは異なります）。</p>
+      <div class="actions">
+        <button class="btn primary" id="pmRetryBtn">この問題をもう一度解く</button>
+        <button class="btn" id="pmBackHomeBtn">ホームへ戻る</button>
       </div>
     </section>
   </main>

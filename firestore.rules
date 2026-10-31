@@ -12,6 +12,15 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // 午後の自己採点記録：午前Ⅱと同じく本人だけ、項目と値の範囲を限定、書き換え不可
+    match /users/{uid}/pmAttempts/{attemptId} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && attemptId.matches('^[0-9]{13}-[a-z0-9]{6}$')
+        && isValidPmAttempt(request.resource.data, attemptId);
+      allow update: if false;
+    }
+
     // それ以外のパスはすべて拒否
     match /{document=**} {
       allow read, write: if false;
@@ -33,6 +42,19 @@ service cloud.firestore {
         && d.questionNo is int && d.questionNo >= 1 && d.questionNo <= 200
         && isChoice(d.chosen) && isChoice(d.answer)
         && d.correct is bool && d.correct == (d.chosen == d.answer)
+        && d.timeMs is int && d.timeMs >= 0 && d.timeMs <= 86400000
+        && d.answeredAt is int && d.answeredAt > 0;
+    }
+
+    function isValidPmAttempt(d, attemptId) {
+      return d.keys().hasOnly(['id', 'examId', 'questionNo', 'itemId', 'grade', 'response', 'timeMs', 'answeredAt'])
+        && d.keys().hasAll(['id', 'examId', 'questionNo', 'itemId', 'grade', 'response', 'timeMs', 'answeredAt'])
+        && d.id == attemptId
+        && d.examId is string && d.examId.matches('^[a-z0-9_]{1,40}$')
+        && d.questionNo is int && d.questionNo >= 1 && d.questionNo <= 10
+        && d.itemId is string && d.itemId.matches('^[0-9a-z-]{1,20}$')
+        && d.grade is string && d.grade in ['ok', 'partial', 'ng']
+        && d.response is string && d.response.size() <= 500
         && d.timeMs is int && d.timeMs >= 0 && d.timeMs <= 86400000
         && d.answeredAt is int && d.answeredAt > 0;
     }
