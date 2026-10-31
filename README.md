@@ -22,6 +22,7 @@
 - `public/data/r07a_sc_am2.json` 問題データ（令和7年度秋期 午前Ⅱ 25問）
 - `public/data/r07h_sc_am2.json` 問題データ（令和7年度春期 午前Ⅱ 25問）
 - `public/data/r06a_sc_am2.json` 問題データ（令和6年度秋期 午前Ⅱ 25問）
+- `public/data/r07a_sc_pm.json` / `r07h_sc_pm.json` 問題データ（令和7年度秋期・春期 午後 各4問）。図は `public/data/img/`
 - `firebase.json` / `firestore.rules` Firebase Hosting と Firestore の設定
 
 ## 手元で試す

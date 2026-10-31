@@ -5,6 +5,7 @@ import { $, fmt, randomId, rate, show, load, save } from "./util.js";
 // 収録している午後の試験（新しい順）。問題データは data/ に置いた自前の JSON のみ
 const PM_EXAMS = [
   { id: "r07a_sc_pm", short: "R7秋", label: "令和7年度 秋期" },
+  { id: "r07h_sc_pm", short: "R7春", label: "令和7年度 春期" },
 ];
 const SCOPE_KEY = "sc-quiz-pm-scope-v1";
 // 本番は 150 分で 4 問中 2 問を解くので、1 問あたりの目安は 75 分
