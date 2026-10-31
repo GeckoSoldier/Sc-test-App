@@ -110,8 +110,14 @@
       <div id="pmItemsPane" role="tabpanel" hidden>
         <div id="pmItems"></div>
         <div id="pmCommentary" class="pm-commentary" hidden>
-          <small>採点講評（出題の意図）</small>
-          <p id="pmCommentaryText"></p>
+          <div id="pmAim">
+            <small>出題趣旨</small>
+            <p id="pmAimText"></p>
+          </div>
+          <div id="pmCommentaryBox">
+            <small>採点講評</small>
+            <p id="pmCommentaryText"></p>
+          </div>
         </div>
         <button id="pmRevealBtn" class="btn primary next">解答例を見て採点する</button>
         <button id="pmSaveBtn" class="btn primary next" hidden>採点を記録する</button>

@@ -3,7 +3,9 @@ import { getPmAttempts, addPmAttempts, clearPmAttempts, GRADES, RESPONSE_MAX } f
 import { $, fmt, randomId, rate, show, load, save } from "./util.js";
 
 // 収録している午後の試験（新しい順）。問題データは data/ に置いた自前の JSON のみ
-const PM_EXAMS = [];
+const PM_EXAMS = [
+  { id: "r07a_sc_pm", short: "R7秋", label: "令和7年度 秋期" },
+];
 const SCOPE_KEY = "sc-quiz-pm-scope-v1";
 // 本番は 150 分で 4 問中 2 問を解くので、1 問あたりの目安は 75 分
 const TARGET_MS = 75 * 60 * 1000;
@@ -234,8 +236,11 @@ function reveal() {
     ans.append(grades);
     box.append(ans);
   }
-  if (q.commentary) {
-    $("pmCommentaryText").textContent = q.commentary;
+  if (q.aim || q.commentary) {
+    $("pmAimText").textContent = q.aim || "";
+    $("pmAim").hidden = !q.aim;
+    $("pmCommentaryText").textContent = q.commentary || "";
+    $("pmCommentaryBox").hidden = !q.commentary;
     $("pmCommentary").hidden = false;
   }
   $("pmRevealBtn").hidden = true;
